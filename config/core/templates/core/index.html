@@ -1,29 +1,26 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <!-- Main Content -->
     <main class="flex-grow">
       <!-- Hero Section -->
-        <section class="relative min-h-full bg-green-900 text-white overflow-hidden">
-            <div class="absolute inset-0 bg-[url('https://picsum.photos/seed/farm/1920/1080')] bg-cover bg-center opacity-20"></div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-            <div class="md:w-2/3">
-                <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-                Next-Gen Farming <br/> powered by AI
-                </h1>
-                <p class="text-xl text-green-100 mb-8 max-w-2xl">
-                Discover plant compatibilities, explore detailed catalogs, and optimize your farm with data-driven comparisons.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                <a href="{% url 'core:catalog' %}" class="bg-green-500 hover:bg-green-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                    Browse Plants
-                </a>
-                <a href="{% url 'core:predictor' %}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                    Try AI Hybridizer
-                </a>
-                </div>
-            </div>
-            </div>
-        </section>
+      <section class="relative min-h-[100vh] bg-green-900 text-white overflow-hidden">
+          <!-- Fullscreen bg starting from top 0 -->
+          <div class="absolute top-0 left-0 w-full h-full bg-[url('{% static "bg.png" %}')] bg-cover bg-center z-0"></div>
+
+          <!-- Content -->
+          <div class="relative z-10 flex items-end justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[100vh] pb-24 lg:pb-32">
+              <div class="flex flex-wrap gap-4">
+                  <a href="{% url 'core:catalog' %}" class="bg-green-500 hover:bg-green-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                      Browse Plants
+                  </a>
+                  <a href="{% url 'core:predictor' %}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                      Try AI Hybridizer
+                  </a>
+              </div>
+          </div>
+      </section>
+
 
       <!-- Features Grid -->
       <section class="bg-gray-50 py-16">

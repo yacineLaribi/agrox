@@ -48,7 +48,7 @@
                 </div>
                 <div class="flex-1">
                     <h2 class="font-semibold text-slate-800">Fala7</h2>
-                    <p class="text-sm text-slate-500">Assistant Intelligent d'agriculture</p>
+                    <p class="text-sm text-slate-500">Intelligent Agricultural Assistant</p>
                 </div>
                 <button @click="expanded = !expanded" 
                         class="text-slate-400 hover:text-slate-600">
@@ -136,7 +136,7 @@
                 <div class="flex-1 relative">
                     <input id="hidden" type="hidden" value="web_search" x-ref="choice">
                     <input type="text" 
-                           placeholder="Posez votre question..." 
+                           placeholder="Ask anything about agriculture..." 
                            autocomplete="off" 
                            @keydown.enter="updateChat($event.target)" 
                            class="w-full px-3 py-2 pr-10 bg-slate-50  border border-slate-200  rounded-lg text-slate-700  placeholder-slate-400  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm" 
@@ -153,10 +153,10 @@
                 </div>
             </div>
             <div class="flex items-center justify-between mt-2 text-xs text-slate-400 dark:text-slate-500">
-                <span>Appuyez sur Entrée</span>
+                <span>Click on Enter</span>
                 <span class="flex items-center gap-1">
                     <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                    En ligne
+                    Online
                 </span>
             </div>
         </div>
@@ -237,7 +237,7 @@
 
             messages: [{
                 from: 'bot',
-                text: 'Bonjour ! 👋 Je suis Fala7, votre assistant intelligent d\'agriculture. Posez-moi une question liée à l\'agriculture, et je vous fournirai des informations fiables.'  
+                text: 'Hello! 👋 I am Fala7, your intelligent agricultural assistant. Ask me a question related to agriculture, and I will provide you with reliable information.'
             }],
             
             toggleChat() {
