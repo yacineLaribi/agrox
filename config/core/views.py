@@ -171,7 +171,7 @@ from django.conf import settings
 # Import your predictor class
 # Ensure 'gemini.py' is in the same directory or properly on your PYTHONPATH
 try:
-    from .gemini1 import HybridizationPredictor
+    from .gemini import HybridizationPredictor
 except ImportError:
     HybridizationPredictor = None
     print("Warning: gemini.py not found. Prediction will not work.")
