@@ -1,0 +1,635 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Page Header with Stats -->
+    <section class="bg-gradient-to-r from-green-600 to-emerald-700 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-4xl font-bold text-white mb-2">Plant Database Dashboard</h1>
+            <p class="text-xl text-green-100 mb-8">Explore and visualize our comprehensive plant collection</p>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 text-white">
+                    <p class="text-sm text-green-100">Total Plants</p>
+                    <p class="text-3xl font-bold" id="totalPlants">-</p>
+                </div>
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 text-white">
+                    <p class="text-sm text-green-100">Families</p>
+                    <p class="text-3xl font-bold" id="totalFamilies">-</p>
+                </div>
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 text-white">
+                    <p class="text-sm text-green-100">Genera</p>
+                    <p class="text-3xl font-bold" id="totalGenera">-</p>
+                </div>
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 text-white">
+                    <p class="text-sm text-green-100">Orders</p>
+                    <p class="text-3xl font-bold" id="totalOrders">-</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualization Tabs -->
+    <section class="py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="switchTab('overview')" class="tab-btn active px-6 py-2 rounded-lg font-semibold transition-all">
+                    📊 Overview
+                </button>
+                <button onclick="switchTab('distribution')" class="tab-btn px-6 py-2 rounded-lg font-semibold transition-all">
+                    🌍 Distribution
+                </button>
+                <button onclick="switchTab('breeding')" class="tab-btn px-6 py-2 rounded-lg font-semibold transition-all">
+                    🧬 Breeding Traits
+                </button>
+                <button onclick="switchTab('conservation')" class="tab-btn px-6 py-2 rounded-lg font-semibold transition-all">
+                    🛡️ Conservation
+                </button>
+                <button onclick="switchTab('explorer')" class="tab-btn px-6 py-2 rounded-lg font-semibold transition-all">
+                    🔍 Plant Explorer
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tab Content -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Top Families Chart -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Top 10 Plant Families</h3>
+                        <canvas id="topFamiliesChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Life Form Distribution -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Life Form Distribution</h3>
+                        <canvas id="lifeFormChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Hybridization Potential -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Hybridization Propensity</h3>
+                        <canvas id="hybridizationChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Genome Size Distribution -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Genome Size (C-value) Distribution</h3>
+                        <canvas id="genomeChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribution Tab -->
+            <div id="distribution-tab" class="tab-content hidden">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Temperature Distribution -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Temperature Preferences</h3>
+                        <canvas id="temperatureChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Family Geographic Heat Map -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Top Families by Count</h3>
+                        <div id="familyHeatmap" class="space-y-2" style="max-height: 300px; overflow-y: auto;">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Order Distribution -->
+                    <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Order Distribution (Top 15)</h3>
+                        <canvas id="orderChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breeding Traits Tab -->
+            <div id="breeding-tab" class="tab-content hidden">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Pollination Syndromes -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Pollination Syndromes</h3>
+                        <canvas id="pollinationChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Mating Systems -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Mating Systems</h3>
+                        <canvas id="matingChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Floral Symmetry -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Floral Symmetry</h3>
+                        <canvas id="floralChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Reproductive Syndromes -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Reproductive Syndromes</h3>
+                        <canvas id="reproductiveChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Breeding Compatibility Matrix -->
+                    <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Breeding Compatibility by Family</h3>
+                        <p class="text-sm text-gray-600 mb-4">Average hybridization propensity for top families</p>
+                        <canvas id="compatibilityChart" class="w-full" style="max-height: 250px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conservation Tab -->
+            <div id="conservation-tab" class="tab-content hidden">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Red List Status -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Conservation Status (Red List)</h3>
+                        <canvas id="redListChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Agricultural Plants -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Agricultural Importance</h3>
+                        <canvas id="agriculturalChart" class="w-full" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Conservation Insights -->
+                    <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Conservation Insights</h3>
+                        <div id="conservationInsights" class="grid md:grid-cols-3 gap-4">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plant Explorer Tab -->
+            <div id="explorer-tab" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Interactive Plant Explorer</h3>
+                    
+                    <!-- Search and Filters -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-6">
+                        <div class="md:col-span-2">
+                            <input type="text" id="explorerSearch" placeholder="Search by genus, family..." 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <select id="explorerFamily" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <option value="">All Families</option>
+                        </select>
+                        <select id="explorerOrder" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <option value="">All Orders</option>
+                        </select>
+                    </div>
+
+                    <!-- Results -->
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">
+                            Showing <span id="explorerCount" class="font-semibold">0</span> plants
+                        </p>
+                    </div>
+
+                    <div id="explorerGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-[600px] overflow-y-auto">
+                        <!-- Plants will be loaded here -->
+                    </div>
+
+                    <div id="explorerLoadMore" class="text-center mt-4 hidden">
+                        <button onclick="loadMoreExplorer()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Load More
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Plant Detail Modal -->
+    <div id="plantModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modalTitle" class="text-2xl font-bold text-gray-900"></h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+                <div id="modalContent">
+                    <!-- Plant details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Global variables
+        let charts = {};
+        let explorerPage = 1;
+        let explorerHasMore = true;
+
+        // Load all data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            loadOverviewCharts();
+            loadExplorerFilters();
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Update button styles
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-green-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+            });
+            event.target.classList.add('active', 'bg-green-600', 'text-white');
+            event.target.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+
+            // Load data for the tab
+            switch(tabName) {
+                case 'distribution':
+                    loadDistributionCharts();
+                    break;
+                case 'breeding':
+                    loadBreedingCharts();
+                    break;
+                case 'conservation':
+                    loadConservationCharts();
+                    break;
+                case 'explorer':
+                    loadExplorerPlants(true);
+                    break;
+            }
+        }
+
+        // Load dashboard stats
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/plants/dashboard/stats/');
+                const data = await response.json();
+                
+                document.getElementById('totalPlants').textContent = data.total_plants.toLocaleString();
+                document.getElementById('totalFamilies').textContent = data.total_families;
+                document.getElementById('totalGenera').textContent = data.total_genera;
+                document.getElementById('totalOrders').textContent = data.total_orders;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load overview charts
+        async function loadOverviewCharts() {
+            try {
+                const response = await fetch('/api/plants/dashboard/overview/');
+                const data = await response.json();
+
+                // Top Families Chart
+                createBarChart('topFamiliesChart', 'Top 10 Families', data.top_families);
+
+                // Life Form Distribution
+                createPieChart('lifeFormChart', data.life_forms);
+
+                // Hybridization Distribution
+                createHistogramChart('hybridizationChart', 'Hybridization Propensity', data.hybridization_dist);
+
+                // Genome Size Distribution
+                createHistogramChart('genomeChart', 'C-value (pg)', data.genome_dist);
+
+            } catch (error) {
+                console.error('Error loading overview charts:', error);
+            }
+        }
+
+        // Load distribution charts
+        async function loadDistributionCharts() {
+            if (charts.temperatureChart) return; // Already loaded
+
+            try {
+                const response = await fetch('/api/plants/dashboard/distribution/');
+                const data = await response.json();
+
+                // Temperature Distribution
+                createHistogramChart('temperatureChart', 'Temperature (°C)', data.temperature_dist);
+
+                // Family Heatmap
+                const heatmapDiv = document.getElementById('familyHeatmap');
+                heatmapDiv.innerHTML = '';
+                data.family_counts.forEach((item, index) => {
+                    const percent = (item.count / data.total_plants * 100).toFixed(1);
+                    heatmapDiv.innerHTML += `
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-700 w-32 truncate">${item.Family}</span>
+                            <div class="flex-1 bg-gray-200 rounded-full h-6">
+                                <div class="bg-gradient-to-r from-green-500 to-green-600 h-6 rounded-full flex items-center justify-end pr-2"
+                                     style="width: ${percent}%">
+                                    <span class="text-xs text-white font-semibold">${item.count}</span>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-500 w-12">${percent}%</span>
+                        </div>
+                    `;
+                });
+
+                // Order Distribution
+                createBarChart('orderChart', 'Top 15 Orders', data.order_dist, true);
+
+            } catch (error) {
+                console.error('Error loading distribution charts:', error);
+            }
+        }
+
+        // Load breeding charts
+        async function loadBreedingCharts() {
+            if (charts.pollinationChart) return;
+
+            try {
+                const response = await fetch('/api/plants/dashboard/breeding/');
+                const data = await response.json();
+
+                createPieChart('pollinationChart', data.pollination);
+                createPieChart('matingChart', data.mating_systems);
+                createPieChart('floralChart', data.floral_symmetry);
+                createPieChart('reproductiveChart', data.reproductive_syndromes);
+                createBarChart('compatibilityChart', 'Average Hybridization Propensity', data.family_compatibility);
+
+            } catch (error) {
+                console.error('Error loading breeding charts:', error);
+            }
+        }
+
+        // Load conservation charts
+        async function loadConservationCharts() {
+            if (charts.redListChart) return;
+
+            try {
+                const response = await fetch('/api/plants/dashboard/conservation/');
+                const data = await response.json();
+
+                createPieChart('redListChart', data.red_list);
+                createPieChart('agriculturalChart', data.agricultural);
+
+                // Conservation insights
+                const insightsDiv = document.getElementById('conservationInsights');
+                insightsDiv.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p class="text-2xl font-bold text-red-600">${data.insights.threatened}</p>
+                        <p class="text-sm text-red-800">Threatened Species</p>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <p class="text-2xl font-bold text-green-600">${data.insights.agricultural}</p>
+                        <p class="text-sm text-green-800">Agricultural Plants</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-2xl font-bold text-blue-600">${data.insights.woody}</p>
+                        <p class="text-sm text-blue-800">Woody Species</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error loading conservation charts:', error);
+            }
+        }
+
+        // Chart creation helpers
+        function createBarChart(canvasId, label, data, horizontal = false) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+
+            if (charts[canvasId]) charts[canvasId].destroy();
+
+            charts[canvasId] = new Chart(ctx, {
+                type: horizontal ? 'bar' : 'bar',
+                data: {
+                    labels: data.map(d => d.label || d.name || d.family),
+                    datasets: [{
+                        label: label,
+                        data: data.map(d => d.count || d.value),
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: horizontal ? 'y' : 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function createPieChart(canvasId, data) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+
+            if (charts[canvasId]) charts[canvasId].destroy();
+
+            const colors = [
+                '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+                '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
+            ];
+
+            charts[canvasId] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.label || d.name),
+                    datasets: [{
+                        data: data.map(d => d.count || d.value),
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, padding: 10, font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createHistogramChart(canvasId, label, data) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+
+            if (charts[canvasId]) charts[canvasId].destroy();
+
+            charts[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.range),
+                    datasets: [{
+                        label: label,
+                        data: data.map(d => d.count),
+                        backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Count' } },
+                        x: { title: { display: true, text: label } }
+                    }
+                }
+            });
+        }
+
+        // Explorer functions
+        async function loadExplorerFilters() {
+            try {
+                const response = await fetch('/api/plants/families/');
+                const data = await response.json();
+                
+                const familySelect = document.getElementById('explorerFamily');
+                const orderResponse = await fetch('/api/plants/dashboard/stats/');
+                const orderData = await orderResponse.json();
+                
+                data.families.forEach(family => {
+                    familySelect.innerHTML += `<option value="${family}">${family}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading filters:', error);
+            }
+        }
+
+        async function loadExplorerPlants(reset = false) {
+            if (reset) explorerPage = 1;
+
+            const search = document.getElementById('explorerSearch').value;
+            const family = document.getElementById('explorerFamily').value;
+            const order = document.getElementById('explorerOrder').value;
+
+            try {
+                const params = new URLSearchParams({
+                    page: explorerPage,
+                    search: search,
+                    family: family,
+                    order: order,
+                    per_page: 24
+                });
+
+                const response = await fetch(`/api/plants/search/?${params}`);
+                const data = await response.json();
+
+                const grid = document.getElementById('explorerGrid');
+                if (reset) grid.innerHTML = '';
+
+                data.plants.forEach(plant => {
+                    grid.innerHTML += `
+                        <div class="bg-white border border-gray-200 rounded-lg p-3 cursor-pointer hover:shadow-lg transition-shadow"
+                             onclick="showPlantDetail(${plant.id})">
+                            ${plant.image_url ? 
+                                `<img src="${plant.image_url}" class="w-full h-24 object-cover rounded mb-2">` :
+                                `<div class="w-full h-24 bg-gradient-to-br from-green-100 to-green-200 rounded mb-2 flex items-center justify-center"><span class="text-3xl">🌿</span></div>`
+                            }
+                            <p class="font-semibold text-sm truncate">${plant.genus}</p>
+                            <p class="text-xs text-gray-600 truncate">${plant.family}</p>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('explorerCount').textContent = data.total_count;
+                explorerHasMore = data.has_next;
+                
+                if (explorerHasMore) {
+                    document.getElementById('explorerLoadMore').classList.remove('hidden');
+                } else {
+                    document.getElementById('explorerLoadMore').classList.add('hidden');
+                }
+
+                explorerPage++;
+            } catch (error) {
+                console.error('Error loading plants:', error);
+            }
+        }
+
+        function loadMoreExplorer() {
+            loadExplorerPlants(false);
+        }
+
+        // Search and filter
+        let explorerTimeout;
+        document.getElementById('explorerSearch')?.addEventListener('input', function() {
+            clearTimeout(explorerTimeout);
+            explorerTimeout = setTimeout(() => loadExplorerPlants(true), 300);
+        });
+
+        document.getElementById('explorerFamily')?.addEventListener('change', () => loadExplorerPlants(true));
+        document.getElementById('explorerOrder')?.addEventListener('change', () => loadExplorerPlants(true));
+
+        // Plant detail modal
+        async function showPlantDetail(plantId) {
+            try {
+                const response = await fetch(`/api/plants/${plantId}/`);
+                const plant = await response.json();
+
+                document.getElementById('modalTitle').textContent = plant.genus;
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="space-y-4">
+                        ${plant.image_url ? `<img src="${plant.image_url}" class="w-full h-48 object-cover rounded-lg">` : ''}
+                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                            <div><span class="font-semibold">Family:</span> ${plant.Family}</div>
+                            <div><span class="font-semibold">Order:</span> ${plant.order}</div>
+                            <div><span class="font-semibold">C-value:</span> ${plant.c_value ? plant.c_value.toFixed(2) + ' pg' : 'N/A'}</div>
+                            <div><span class="font-semibold">Hybridization:</span> ${plant.hybridization_propensity ? (plant.hybridization_propensity * 100).toFixed(0) + '%' : 'N/A'}</div>
+                        </div>
+                        <a href="/plants/comparison/?plants=${plantId}" class="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Compare with Other Plants
+                        </a>
+                    </div>
+                `;
+
+                document.getElementById('plantModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading plant details:', error);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('plantModal').classList.add('hidden');
+        }
+
+        // Close modal on outside click
+        document.getElementById('plantModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+
+    <style>
+        .tab-btn.active {
+            background-color: #16a34a !important;
+            color: white !important;
+        }
+        
+        .tab-btn:not(.active) {
+            background-color: white;
+            color: #374151;
+        }
+        
+        .tab-btn:not(.active):hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+
+{% endblock content %}

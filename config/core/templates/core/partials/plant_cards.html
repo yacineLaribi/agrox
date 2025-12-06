@@ -1,0 +1,52 @@
+{% comment %}
+Save this as: templates/core/partials/plant_cards.html
+{% endcomment %}
+
+{% for plant in plants %}
+  <a href="{% url 'core:plant_detail' plant.id %}" class="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div class="h-48 overflow-hidden bg-gray-100">
+      {% if plant.image_url %}
+        <img 
+          src="{{ plant.image_url }}" 
+          alt="{{ plant.Genus }}" 
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+        />
+      {% else %}
+        <div class="w-full h-full flex items-center justify-center text-gray-400">
+          <i data-lucide="leaf" class="h-16 w-16"></i>
+        </div>
+      {% endif %}
+    </div>
+    <div class="p-4">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="text-lg font-bold text-gray-900">{{ plant.Genus }}</h3>
+        <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-800 rounded-full whitespace-nowrap ml-2">
+          {{ plant.Order }}
+        </span>
+      </div>
+      <p class="text-sm text-gray-500 italic mb-3">{{ plant.Family }}</p>
+      
+      {% comment %}
+      Uncomment and adjust based on your model structure:
+      
+      If traits is a ManyToMany field:
+      <div class="flex flex-wrap gap-1">
+        {% for trait in plant.traits.all|slice:":3" %}
+          <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ trait.name }}</span>
+        {% endfor %}
+        {% if plant.traits.count > 3 %}
+          <span class="text-xs text-gray-400 px-1">+{{ plant.traits.count|add:"-3" }} more</span>
+        {% endif %}
+      </div>
+      
+      If traits is a JSONField or comma-separated string:
+      <div class="flex flex-wrap gap-1">
+        {% for trait in plant.traits|slice:":3" %}
+          <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ trait }}</span>
+        {% endfor %}
+      </div>
+      {% endcomment %}
+    </div>
+  </a>
+{% endfor %}

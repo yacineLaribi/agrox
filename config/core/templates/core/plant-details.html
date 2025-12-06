@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Breadcrumb -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <a href="{% url 'core:catalog' %}" class="text-gray-600 hover:text-green-600">Catalog</a>
+        <span class="text-gray-400"> / </span>
+        <span class="text-gray-900 font-semibold">{{ plant.Genus }}</span>
+    </div>
+
+    <!-- Plant Details Header -->
+    <section class="py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Plant Image -->
+                <div>
+                    <div class="bg-gray-200 rounded-lg h-96 flex items-center justify-center overflow-hidden">
+                        {% if plant.image_url %}
+                            <img src="{{ plant.image_url }}" alt="{{ plant.Genus }}" class="w-full h-full object-cover rounded-lg">
+                        {% else %}
+                            <div class="text-gray-400 text-center">
+                                <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="text-sm">No image available</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Plant Info -->
+                <div>
+                    <div class="mb-6">
+                        <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ plant.Genus }}</h1>
+                        <p class="text-lg text-gray-600 mb-4">{{ plant.Family }} Family</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">{{ plant.Family }}</span>
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">{{ plant.Order }}</span>
+                            {% if plant.HybProp and plant.HybProp > 0.5 %}
+                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">Hybrid Capable</span>
+                            {% endif %}
+                            {% if plant.mating_system_text %}
+                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-semibold">{{ plant.mating_system_text }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-900 mb-3">Plant Characteristics</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            {% if plant.perc_per_text %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Life Cycle</p>
+                                <p class="font-semibold text-gray-900">{{ plant.perc_per_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.perc_wood_text %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Growth Form</p>
+                                <p class="font-semibold text-gray-900">{{ plant.perc_wood_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.floral_symm_text %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Floral Symmetry</p>
+                                <p class="font-semibold text-gray-900">{{ plant.floral_symm_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.pollination_syndrome_text %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Pollination Type</p>
+                                <p class="font-semibold text-gray-900">{{ plant.pollination_syndrome_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.HybProp %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Hybrid Propensity</p>
+                                <p class="font-semibold text-gray-900">{{ plant.HybProp|floatformat:2 }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.Hyb_Ratio %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Hybrid Ratio</p>
+                                <p class="font-semibold text-gray-900">{{ plant.Hyb_Ratio|floatformat:2 }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">Add to My Farm</button>
+                        <a href="{% url 'core:predictor' %}?plant={{ plant.id }}" class="flex-1 px-6 py-3 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-semibold text-center">Use in Predictor</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Information -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="md:col-span-2">
+                    <!-- Taxonomic Information -->
+                    <div class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Taxonomic Classification</h2>
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-gray-600 font-medium w-24">Order:</span>
+                                    <span class="text-gray-900 font-semibold">{{ plant.Order }}</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="text-gray-600 font-medium w-24">Family:</span>
+                                    <span class="text-gray-900 font-semibold">{{ plant.Family }}</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="text-gray-600 font-medium w-24">Genus:</span>
+                                    <span class="text-gray-900 font-semibold">{{ plant.Genus }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reproductive Biology -->
+                    <div class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Reproductive Biology</h2>
+                        <div class="space-y-4">
+                            {% if plant.mating_system_text %}
+                            <div class="border-l-4 border-green-600 pl-4">
+                                <h3 class="font-semibold text-gray-900 mb-1">Mating System</h3>
+                                <p class="text-gray-700">{{ plant.mating_system_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.pollination_syndrome_text %}
+                            <div class="border-l-4 border-green-600 pl-4">
+                                <h3 class="font-semibold text-gray-900 mb-1">Pollination Syndrome</h3>
+                                <p class="text-gray-700">{{ plant.pollination_syndrome_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.repro_syndrome_text %}
+                            <div class="border-l-4 border-green-600 pl-4">
+                                <h3 class="font-semibold text-gray-900 mb-1">Reproductive Syndrome</h3>
+                                <p class="text-gray-700">{{ plant.repro_syndrome_text }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.floral_symm_text %}
+                            <div class="border-l-4 border-green-600 pl-4">
+                                <h3 class="font-semibold text-gray-900 mb-1">Floral Symmetry</h3>
+                                <p class="text-gray-700">{{ plant.floral_symm_text }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Hybridization -->
+                    {% if plant.HybProp and plant.HybProp > 0.3 %}
+                    <div class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Hybridization Information</h2>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-4">
+                            <h3 class="font-semibold text-gray-900 mb-2">Hybrid Capability</h3>
+                            <p class="text-gray-700 mb-4">
+                                This plant has a hybrid propensity of {{ plant.HybProp|floatformat:2 }}, 
+                                {% if plant.HybProp > 0.7 %}
+                                    indicating <strong>high potential</strong> for successful hybridization.
+                                {% elif plant.HybProp > 0.5 %}
+                                    indicating <strong>moderate potential</strong> for hybridization.
+                                {% else %}
+                                    indicating <strong>some potential</strong> for hybridization.
+                                {% endif %}
+                            </p>
+                            {% if hybrid_candidates %}
+                            <h4 class="font-semibold text-gray-900 mb-2 mt-4">Potential Hybrid Partners</h4>
+                            <p class="text-gray-700 mb-3">Compatible plants from the same family:</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                {% for candidate in hybrid_candidates %}
+                                <li>
+                                    <a href="{% url 'core:plant_detail' candidate.id %}" class="text-green-600 hover:underline">
+                                        {{ candidate.Genus }}
+                                    </a>
+                                    - Hybrid Propensity: {{ candidate.HybProp|floatformat:2 }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'core:comparison' %}?plant1={{ plant.id }}" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold inline-block">
+                            Check Compatibility
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Environmental Data -->
+                    {% if plant.tavg_text or plant.C_value or plant.redlist_text %}
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Environmental & Conservation</h2>
+                        <div class="grid gap-4">
+                            {% if plant.tavg_text %}
+                            <div class="flex gap-4 p-4 border border-gray-200 rounded-lg">
+                                <div class="text-2xl">🌡️</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Temperature</h3>
+                                    <p class="text-gray-600 text-sm">{{ plant.tavg_text }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.redlist_text %}
+                            <div class="flex gap-4 p-4 border border-gray-200 rounded-lg">
+                                <div class="text-2xl">📋</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Conservation Status</h3>
+                                    <p class="text-gray-600 text-sm">{{ plant.redlist_text }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.C_value %}
+                            <div class="flex gap-4 p-4 border border-gray-200 rounded-lg">
+                                <div class="text-2xl">🧬</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">C-Value (Genome Size)</h3>
+                                    <p class="text-gray-600 text-sm">{{ plant.C_value|floatformat:2 }} pg</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Sidebar -->
+                <div class="md:col-span-1">
+                    <!-- Related Plants -->
+                    {% if related_plants %}
+                    <div class="border border-gray-200 rounded-lg p-6 mb-6">
+                        <h3 class="font-bold text-gray-900 mb-4">Related Plants</h3>
+                        <p class="text-sm text-gray-600 mb-3">Other plants in the {{ plant.Family }} family:</p>
+                        <ul class="space-y-3">
+                            {% for related in related_plants %}
+                            <li>
+                                <a href="{% url 'core:plant_detail' related.id %}" class="text-green-600 hover:underline">
+                                    {{ related.Genus }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Specifications -->
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="font-bold text-gray-900 mb-4">Plant Properties</h3>
+                        <div class="space-y-3 text-sm">
+                            {% if plant.perc_ag %}
+                            <div>
+                                <p class="text-gray-600">Agricultural Use</p>
+                                <p class="font-semibold text-gray-900">{{ plant.perc_ag|floatformat:2 }}%</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.perc_per %}
+                            <div class="border-t border-gray-200 pt-3">
+                                <p class="text-gray-600">Perennial Percentage</p>
+                                <p class="font-semibold text-gray-900">{{ plant.perc_per|floatformat:2 }}%</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.perc_wood %}
+                            <div class="border-t border-gray-200 pt-3">
+                                <p class="text-gray-600">Woody Percentage</p>
+                                <p class="font-semibold text-gray-900">{{ plant.perc_wood|floatformat:2 }}%</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if plant.Cv_C_value %}
+                            <div class="border-t border-gray-200 pt-3">
+                                <p class="text-gray-600">Genome Size Variation</p>
+                                <p class="font-semibold text-gray-900">{{ plant.Cv_C_value|floatformat:2 }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

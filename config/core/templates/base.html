@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AGROX - Smart Farming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1"
+  }
+}
+</script>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
+    
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <a href="{% url "core:home" %}" class="flex-shrink-0 flex items-center gap-2">
+              <i data-lucide="leaf" class="h-8 w-8 text-green-600"></i>
+              <span class="font-bold text-xl tracking-tight text-gray-900">جنان</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="{% url "core:home" %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-green-500 text-sm font-medium text-gray-900">Home</a>
+            <a href="{% url "core:catalog" %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Plant Catalog</a>
+            <a href="{% url "core:predictor" %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Hybridizer AI</a>
+            <a href="{% url "core:comparison" %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Comparisons</a>
+            <a href="{% url "core:dashboard" %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Dashboard</a>
+            {% if request.user.is_authenticated %}
+            <div>
+                <a href="{% url 'core:profile' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"><i class="fas fa-user"></i></a>
+                <a href="{% url 'core:logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-2 py-2 rounded-lg text-sm font-medium transition-colors"><i class="fas fa-sign-out-alt"></i></a>
+                
+
+            </div>
+            {% else %}
+            <a href="{% url 'core:login' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Login</a>
+            {% endif %}
+
+          </div>
+          <div class="-mr-2 flex items-center md:hidden">
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+              <i data-lucide="menu" class="h-6 w-6"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="mobile-menu" class="hidden md:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+          <a href="{% url "core:home" %}" class="block pl-3 pr-4 py-2 border-l-4 border-green-500 text-base font-medium bg-green-50 text-green-700">Home</a>
+          <a href="{% url "core:catalog" %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Plant Catalog</a>
+          <a href="{% url "core:predictor" %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Hybridizer AI</a>
+          <a href="{% url "core:comparison" %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Comparisons</a>
+          <a href="{% url "core:dashboard" %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Dashboard</a>
+          <a href="{% url 'core:login' %}" class="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Login</a>
+        </div>
+      </div>
+    </nav>
+    {% block content %}{% endblock content %}
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 border-t border-gray-200 mt-auto">
+      <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-sm text-gray-500">
+          &copy; <span id="year"></span> AGROX. All rights reserved. Empowering farmers with data & AI.
+        </p>
+      </div>
+    </footer>
+{% block script %}{% endblock script %}
+{% if request.user.is_authenticated %}
+{% include "core/partials/chatbot-widget.html" %}
+{% endif %}
+<!-- Toast container -->
+<div id="toast-container" class="fixed bottom-6 right-6 flex flex-col items-end space-y-3 z-50"></div>
+
+<script>
+  lucide.createIcons();
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function showToast(message, level='info', timeout=6000) {
+    const colors = {
+      debug: 'bg-gray-700',
+      info: 'bg-blue-600',
+      success: 'bg-green-600',
+      warning: 'bg-yellow-500 text-black',
+      error: 'bg-red-600'
+    };
+    const icons = {
+      debug: 'circle',
+      info: 'info',
+      success: 'check-circle',
+      warning: 'alert-triangle',
+      error: 'x-circle'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `max-w-sm w-full ${colors[level] || colors.info} text-white shadow-lg rounded-lg pointer-events-auto flex items-start gap-3 p-3 transform transition-all duration-200`;
+    toast.style.opacity = '0';
+    toast.innerHTML = `
+      <div class="flex-shrink-0 pt-1"><i data-lucide="${icons[level] || 'info'}" class="h-6 w-6"></i></div>
+      <div class="flex-1 text-sm">${message}</div>
+      <button class="ml-3 text-white opacity-80 hover:opacity-100 focus:outline-none">&times;</button>
+    `;
+    const container = document.getElementById('toast-container');
+    container.appendChild(toast);
+    lucide.createIcons();
+
+    // enter animation
+    requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+
+    const remove = () => {
+      toast.style.opacity = '0';
+      toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    };
+
+    toast.querySelector('button').addEventListener('click', remove);
+    setTimeout(remove, timeout);
+  }
+
+  // Render Django messages as toasts
+  {% if messages %}
+    {% for m in messages %}
+      showToast("{{ m|escapejs }}", "{{ m.tags|default:'info' }}");
+    {% endfor %}
+  {% endif %}
+</script>
+</body>
+</html>

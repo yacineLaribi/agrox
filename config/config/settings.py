@@ -25,8 +25,17 @@ SECRET_KEY = 'django-insecure-8b@_zas*vh2+3vmy=-w*6=j93qhb$t-78xqvw!q!z0f+ogato_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+import os
+from dotenv import load_dotenv
 
+# Call this function at the top of your settings file.
+# It looks for a file named '.env' in the current directory and loads it.
+load_dotenv()
+
+# Example: Now you can safely access the key:
+# GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') 
+# (Though the Google GenAI SDK usually finds it automatically after load_dotenv runs)
 
 # Application definition
 
@@ -37,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +130,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AUTH_USER_MODEL = 'core.CustomUser'

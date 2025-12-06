@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <!-- Hero Section -->
+        <section class="relative min-h-full bg-green-900 text-white overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://picsum.photos/seed/farm/1920/1080')] bg-cover bg-center opacity-20"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+            <div class="md:w-2/3">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+                Next-Gen Farming <br/> powered by AI
+                </h1>
+                <p class="text-xl text-green-100 mb-8 max-w-2xl">
+                Discover plant compatibilities, explore detailed catalogs, and optimize your farm with data-driven comparisons.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                <a href="{% url 'core:catalog' %}" class="bg-green-500 hover:bg-green-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    Browse Plants
+                </a>
+                <a href="{% url 'core:predictor' %}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    Try AI Hybridizer
+                </a>
+                </div>
+            </div>
+            </div>
+        </section>
+
+      <!-- Features Grid -->
+      <section class="bg-gray-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">Empower Your Harvest</h2>
+            <p class="mt-4 text-gray-600">Everything you need to plan and experiment for a better yield.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <a href="{% url 'core:catalog' %}" class="group p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                <i data-lucide="book-open" class="h-6 w-6"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Plant Catalog</h3>
+              <p class="text-gray-600">Access a comprehensive database of crops with detailed growth traits.</p>
+            </a>
+            <a href="{% url 'core:predictor' %}" class="group p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                <i data-lucide="test-tube" class="h-6 w-6"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">AI Hybridizer</h3>
+              <p class="text-gray-600">Predict cross-breeding outcomes with our advanced Gemini AI engine.</p>
+            </a>
+            <a href="{% url 'core:comparison' %}" class="group p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                <i data-lucide="scale" class="h-6 w-6"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Product Compare</h3>
+              <p class="text-gray-600">Side-by-side comparison of tools, fertilizers, and seeds.</p>
+            </a>
+            <a href="{% url 'core:dashboard' %}" class="group p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                <i data-lucide="sprout" class="h-6 w-6"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Smart Dashboard</h3>
+              <p class="text-gray-600">Track your plants, experiments, and farm analytics in one place.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+{% endblock content %}

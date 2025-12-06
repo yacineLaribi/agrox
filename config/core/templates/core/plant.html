@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plant Detail - AGROX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
+    
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <a href="index.html" class="flex-shrink-0 flex items-center gap-2">
+              <i data-lucide="leaf" class="h-8 w-8 text-green-600"></i>
+              <span class="font-bold text-xl tracking-tight text-gray-900">AGROX</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Home</a>
+            <a href="catalog.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-green-500 text-sm font-medium text-gray-900">Plant Catalog</a>
+            <a href="hybridizer.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Hybridizer AI</a>
+            <a href="comparison.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Comparisons</a>
+            <a href="dashboard.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Dashboard</a>
+            <a href="login.html" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Sign In</a>
+          </div>
+          <div class="-mr-2 flex items-center md:hidden">
+            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+              <i data-lucide="menu" class="h-6 w-6"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="mobile-menu" class="hidden md:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+          <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Home</a>
+          <a href="catalog.html" class="block pl-3 pr-4 py-2 border-l-4 border-green-500 text-base font-medium bg-green-50 text-green-700">Plant Catalog</a>
+           <a href="hybridizer.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Hybridizer AI</a>
+           <a href="comparison.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Comparisons</a>
+           <a href="dashboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">Dashboard</a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex-grow py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" id="content-area">
+             <!-- Content injected by JS -->
+        </div>
+    </main>
+
+    <footer class="bg-gray-50 border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm text-gray-500">
+            &copy; <span id="year"></span> AGROX. All rights reserved.
+          </p>
+        </div>
+    </footer>
+
+    <script type="module">
+      import { PLANTS } from './data.js';
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      const plant = PLANTS.find(p => p.id === id);
+      const content = document.getElementById('content-area');
+
+      if (!plant) {
+        content.innerHTML = `
+          <div class="flex flex-col items-center justify-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Plant not found</h2>
+            <a href="catalog.html" class="text-green-600 hover:text-green-700 font-medium flex items-center gap-2">
+              <i data-lucide="arrow-left" class="h-5 w-5"></i> Back to Catalog
+            </a>
+          </div>
+        `;
+      } else {
+        const traitsHtml = plant.traits.map(t => `<span class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">${t}</span>`).join('');
+        const type = plant.traits.includes('Annual') ? 'Annual' : 'Perennial/Biennial';
+
+        content.innerHTML = `
+          <a href="catalog.html" class="inline-flex items-center text-sm text-gray-500 hover:text-green-600 mb-6 transition-colors">
+            <i data-lucide="arrow-left" class="mr-1 h-4 w-4"></i> Back to Catalog
+          </a>
+
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="h-64 sm:h-80 w-full relative">
+              <img src="${plant.imageUrl}" alt="${plant.commonName}" class="w-full h-full object-cover" />
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 sm:p-8">
+                <h1 class="text-3xl sm:text-4xl font-bold text-white">${plant.commonName}</h1>
+                <p class="text-lg text-gray-200 italic">${plant.scientificName}</p>
+              </div>
+            </div>
+
+            <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div class="md:col-span-2 space-y-8">
+                
+                <section>
+                  <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="sun" class="text-orange-500 h-6 w-6"></i>
+                    <h2 class="text-xl font-semibold text-gray-900">Growth Conditions</h2>
+                  </div>
+                  <p class="text-gray-600 leading-relaxed bg-orange-50 p-4 rounded-lg border border-orange-100">
+                    ${plant.growthConditions}
+                  </p>
+                </section>
+
+                <section>
+                  <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="wind" class="text-blue-500 h-6 w-6"></i>
+                    <h2 class="text-xl font-semibold text-gray-900">Pollination Info</h2>
+                  </div>
+                  <p class="text-gray-600 leading-relaxed bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    ${plant.pollinationInfo}
+                  </p>
+                </section>
+
+                <section>
+                  <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="activity" class="text-purple-500 h-6 w-6"></i>
+                    <h2 class="text-xl font-semibold text-gray-900">Hybridization Potential</h2>
+                  </div>
+                  <p class="text-gray-600 leading-relaxed bg-purple-50 p-4 rounded-lg border border-purple-100">
+                    ${plant.hybridizationNotes}
+                  </p>
+                </section>
+              </div>
+
+              <div class="md:col-span-1 space-y-6">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                  <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="sprout" class="text-green-600 h-5 w-5"></i>
+                    <h3 class="font-semibold text-gray-900">Biological Info</h3>
+                  </div>
+                  <div class="space-y-3 text-sm">
+                    <div>
+                      <span class="text-gray-500 block">Family</span>
+                      <span class="font-medium text-gray-900">${plant.family}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-500 block">Type</span>
+                      <span class="font-medium text-gray-900">${type}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 class="font-semibold text-gray-900 mb-3">Key Traits</h3>
+                  <div class="flex flex-wrap gap-2">
+                    ${traitsHtml}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      lucide.createIcons();
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

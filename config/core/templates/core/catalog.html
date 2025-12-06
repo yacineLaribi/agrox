@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Main Content -->
+    <main class="flex-grow py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-900">Plant Catalog</h1>
+                <p class="text-gray-600 mt-1">Browse our database of <span id="total-count">1700+</span> agricultural species.</p>
+              </div>
+              
+              <div class="flex flex-col sm:flex-row gap-4">
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                  </div>
+                  <input
+                    type="text"
+                    id="search-input"
+                    placeholder="Search plants..."
+                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 w-full sm:w-64"
+                  />
+                </div>
+                <select
+                  id="family-select"
+                  class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                >
+                  <option value="">All Families</option>
+                  {% for family in families %}
+                    <option value="{{ family }}">{{ family }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+    
+            <div id="plant-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <!-- Plants loaded dynamically -->
+            </div>
+            
+            <div id="loading" class="hidden text-center py-8">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+              <p class="text-gray-500 mt-2">Loading plants...</p>
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-12">
+              <p class="text-gray-500 text-lg">No plants found matching your criteria.</p>
+            </div>
+        </div>
+    </main>
+{% endblock content %}
+
+{% block script %}
+<script>
+  const grid = document.getElementById('plant-grid');
+  const searchInput = document.getElementById('search-input');
+  const familySelect = document.getElementById('family-select');
+  const loading = document.getElementById('loading');
+  const noResults = document.getElementById('no-results');
+  const totalCountEl = document.getElementById('total-count');
+  
+  let currentPage = 1;
+  let isLoading = false;
+  let hasMore = true;
+  let searchTimeout = null;
+
+  async function loadPlants(reset = false) {
+    if (isLoading || (!hasMore && !reset)) return;
+    
+    isLoading = true;
+    loading.classList.remove('hidden');
+    noResults.classList.add('hidden');
+    
+    if (reset) {
+      currentPage = 1;
+      hasMore = true;
+      grid.innerHTML = '';
+    }
+    
+    const params = new URLSearchParams({
+      page: currentPage,
+      search: searchInput.value,
+      family: familySelect.value
+    });
+    
+    try {
+      const response = await fetch(`/catalog/load-plants/?${params}`);
+      const data = await response.json();
+      
+      if (data.html) {
+        grid.insertAdjacentHTML('beforeend', data.html);
+        
+        // Re-initialize Lucide icons for new content
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+      
+      hasMore = data.has_next;
+      if (data.has_next) {
+        currentPage = data.next_page;
+      }
+      
+      // Update total count
+      if (data.total_count !== undefined) {
+        totalCountEl.textContent = data.total_count;
+      }
+      
+      // Show no results message
+      if (reset && data.total_count === 0) {
+        noResults.classList.remove('hidden');
+      }
+      
+    } catch (error) {
+      console.error('Error loading plants:', error);
+    } finally {
+      isLoading = false;
+      loading.classList.add('hidden');
+    }
+  }
+
+  // Infinite scroll
+  function handleScroll() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = document.documentElement.clientHeight;
+    
+    if (scrollTop + clientHeight >= scrollHeight - 500 && hasMore && !isLoading) {
+      loadPlants();
+    }
+  }
+
+  // Search with debounce
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      loadPlants(true);
+    }, 500);
+  });
+
+  // Family filter
+  familySelect.addEventListener('change', () => {
+    loadPlants(true);
+  });
+
+  // Scroll listener
+  window.addEventListener('scroll', handleScroll);
+
+  // Initial load
+  loadPlants();
+</script>
+{% endblock script %}

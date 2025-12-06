@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Hybridization Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+        .data-card { transition: all 0.3s ease; }
+        .comparison-score { font-size: 2.5rem; line-height: 1; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">🌿 Plant Hybridization Predictor</h1>
+                <p class="text-gray-600 mt-2">Powered by AI Model: Select two genera to predict compatibility.</p>
+            </div>
+            <div class="hidden md:block">
+                <span class="bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">Model Active</span>
+            </div>
+        </div>
+        
+        <!-- Selection Interface -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" class="absolute inset-0 bg-white/80 rounded-xl z-10 flex items-center justify-center hidden">
+                <div class="flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mb-3"></div>
+                    <span class="text-green-800 font-semibold">Analyzing Genome Data...</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="genus-select-1" class="block text-lg font-semibold text-gray-700 mb-3">Genus 1 (Primary)</label>
+                <select id="genus-select-1" class="p-3 w-full border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-gray-50">
+                    <option value="" disabled selected>--- Select Genus 1 ---</option>
+                    {% for genus in genera %}
+                        <option value="{{ genus }}">{{ genus }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="genus-select-2" class="block text-lg font-semibold text-gray-700 mb-3">Genus 2 (Partner)</label>
+                <select id="genus-select-2" class="p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    <option value="" disabled selected>--- Select Genus 2 ---</option>
+                    {% for genus in genera %}
+                        <option value="{{ genus }}">{{ genus }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="md:col-span-2 flex justify-center mt-2">
+                <button onclick="requestPrediction()" id="predict-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Run Prediction Model
+                </button>
+            </div>
+        </div>
+        
+        <!-- AI Prediction Results -->
+        <div id="comparison-card" class="bg-indigo-50 border-indigo-200 border-2 p-6 rounded-xl shadow-md mb-8 hidden">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                🧪 AI Model Analysis
+            </h2>
+            <div id="comparison-content" class="text-center">
+                <!-- Filled via JS -->
+            </div>
+        </div>
+
+        <!-- Plant Property Display Cards -->
+        <div id="property-display-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+             <!-- Card 1 -->
+            <div class="bg-white border-t-4 border-green-500 p-6 rounded-xl shadow-lg data-card">
+                <h2 id="plant-name-1" class="text-2xl font-bold text-green-700 mb-4"></h2>
+                <div id="details-1" class="space-y-4"></div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-white border-t-4 border-blue-500 p-6 rounded-xl shadow-lg data-card">
+                <h2 id="plant-name-2" class="text-2xl font-bold text-blue-700 mb-4"></h2>
+                <div id="details-2" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSRF Token for fetch requests -->
+    {% csrf_token %}
+
+    <script>
+        // Use document.cookie to retrieve the CSRF token, which is more reliable than querySelector
+        const getCSRFToken = () => {
+            const name = 'csrftoken';
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        return decodeURIComponent(cookie.substring(name.length + 1));
+                    }
+                }
+            }
+            // Fallback: use querySelector if cookie not set (e.g., in testing)
+            const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+            return tokenElement ? tokenElement.value : '';
+        };
+
+        const genus1Select = document.getElementById('genus-select-1');
+        const genus2Select = document.getElementById('genus-select-2');
+        const predictBtn = document.getElementById('predict-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const comparisonCard = document.getElementById('comparison-card');
+        const propertyWrapper = document.getElementById('property-display-wrapper');
+        
+        // Initial button state check
+        function updateButtonState() {
+            predictBtn.disabled = !(genus1Select.value && genus2Select.value);
+        }
+
+        genus1Select.addEventListener('change', updateButtonState);
+        genus2Select.addEventListener('change', updateButtonState);
+        updateButtonState(); // Set initial state
+
+        // Helper to format values elegantly
+        const formatVal = (val, suffix='') => {
+            if (val === null || val === undefined || val === '') return '<span class="text-gray-400 italic">N/A</span>';
+            if (typeof val === 'number') {
+                // If the number is very small (like C-value), show more precision
+                if (Math.abs(val) < 0.1 && val !== 0) return `${val.toFixed(5)}${suffix}`;
+                // Otherwise, show up to 4 decimal places
+                return `${val % 1 !== 0 ? val.toFixed(4) : val}${suffix}`;
+            }
+            return val;
+        };
+
+        const createRow = (label, value) => `
+            <div class="flex flex-col border-b border-gray-100 pb-2 last:border-0">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${label}</span>
+                <span class="text-gray-800 font-medium">${value}</span>
+            </div>
+        `;
+
+        function renderPlantDetails(containerId, data) {
+            const container = document.getElementById(containerId);
+            const genusName = data.Genus || 'Unknown Genus';
+            if (!data || Object.keys(data).length === 0) {
+                container.innerHTML = '<p class="text-gray-400 italic">No detailed biological data available for this genus.</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="bg-gray-50 p-3 rounded-lg mb-3">
+                    <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">Taxonomy</h3>
+                    ${createRow('Family', formatVal(data.Family))}
+                    ${createRow('Order', formatVal(data.Order))}
+                    ${createRow('Species Count', formatVal(data.Number_of_species))}
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg mb-3">
+                    <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">Genetics</h3>
+                    ${createRow('Ploidy Variation (CV)', formatVal(data.CV_C_value))}
+                    ${createRow('Genome Size (C-Value)', formatVal(data.C_value, ' pg'))}
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">Traits</h3>
+                    ${createRow('Hybridization Propensity Index', formatVal(data.HybProp))}
+                    ${createRow('Perennial Percentage', data.perc_per ? (data.perc_per * 100).toFixed(0) + '%' : 'N/A')}
+                </div>
+            `;
+        }
+
+        async function requestPrediction() {
+            const g1 = genus1Select.value;
+            const g2 = genus2Select.value;
+
+            if (!g1 || !g2) {
+                // Using console.error instead of alert as per instructions
+                console.error("Selection Error: Please select both genera first.");
+                return;
+            }
+
+            // UI State: Loading
+            loadingOverlay.classList.remove('hidden');
+            predictBtn.disabled = true;
+            comparisonCard.classList.add('hidden');
+            propertyWrapper.classList.add('hidden');
+
+            try {
+                const response = await fetch('/predict/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ genus1: g1, genus2: g2 })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle server-side errors (e.g., 400, 500)
+                    console.error("Server Error:", data.error || response.statusText);
+                    document.getElementById('comparison-content').innerHTML = `
+                        <p class="text-red-600 font-semibold">Error: ${data.error || 'Prediction failed due to server issue.'}</p>
+                    `;
+                    comparisonCard.classList.remove('hidden');
+                    return;
+                }
+
+                // 1. Render Model Results
+                const result = data.result;
+                const prob = result.probability; // Probability is expected to be a float 0.0 to 1.0
+                const percent = (prob * 100).toFixed(1);
+                
+                let colorClass = 'text-red-600 bg-red-100 border-red-300';
+                let textResult = 'LOW: Hybridization Unlikely';
+                
+                if (prob > 0.75) {
+                    colorClass = 'text-green-700 bg-green-100 border-green-300';
+                    textResult = 'HIGH: Hybridization Likely';
+                } else if (prob > 0.4) {
+                    colorClass = 'text-yellow-700 bg-yellow-100 border-yellow-300';
+                    textResult = 'MODERATE: Potential for Hybridization';
+                }
+                
+                const confidenceText = result.confidence || 'N/A';
+
+                document.getElementById('comparison-content').innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-4">
+                        <div class="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-2">Predicted Success Rate</div>
+                        <div class="text-5xl font-extrabold ${colorClass} px-6 py-3 rounded-xl mb-3 border-2 shadow-inner">
+                            ${percent}%
+                        </div>
+                        <div class="text-xl font-bold text-gray-700">${textResult}</div>
+                        <div class="mt-4 text-sm text-gray-500 bg-white px-3 py-1 rounded border">
+                            Model Confidence: <span class="font-semibold text-indigo-600">${confidenceText}</span>
+                        </div>
+                    </div>
+                `;
+
+                // 2. Render Plant Details
+                document.getElementById('plant-name-1').textContent = g1;
+                document.getElementById('plant-name-2').textContent = g2;
+                renderPlantDetails('details-1', data.plant1);
+                renderPlantDetails('details-2', data.plant2);
+
+                // UI State: Success
+                comparisonCard.classList.remove('hidden');
+                propertyWrapper.classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Fetch/Processing Error:", err);
+                document.getElementById('comparison-content').innerHTML = `
+                    <p class="text-red-600 font-semibold">A network or parsing error occurred. Check the console for details.</p>
+                `;
+                comparisonCard.classList.remove('hidden');
+            } finally {
+                // Always restore the button state
+                loadingOverlay.classList.add('hidden');
+                predictBtn.disabled = false;
+                updateButtonState();
+            }
+        }
+    </script>
+</body>
+</html>
