@@ -114,7 +114,7 @@ def load_plants(request):
         )
     
     if family_filter:
-        plants = plants.filter(family=family_filter)
+        plants = plants.filter(Family=family_filter)
     
     # Paginate
     paginator = Paginator(plants, 10)  # 20 plants per load
@@ -171,7 +171,9 @@ from django.conf import settings
 # Import your predictor class
 # Ensure 'gemini.py' is in the same directory or properly on your PYTHONPATH
 try:
-    from .gemini import HybridizationPredictor
+    #from .gemini import HybridizationPredictor
+    from .claude import HybridizationPredictor
+
 except ImportError:
     HybridizationPredictor = None
     print("Warning: gemini.py not found. Prediction will not work.")
@@ -183,28 +185,35 @@ MODEL_CACHE = {
     'data': None
 }
 
+# In your views.py:
+
 def load_resources():
     if MODEL_CACHE['model'] is None and HybridizationPredictor:
         try:
-            print("Loading Hybridization Model and Database...")
-            model = HybridizationPredictor.load_model('hybridization_predictor.pkl')
+            print("Loading Hybridization Model...")
+            # Load the trained model artifact
+            model = HybridizationPredictor.load_model('hybridization_predictor1.pkl')
             MODEL_CACHE['model'] = model
 
-            # Correct path to enriched data
+            # Correct path to enriched data (The lookup table)
             csv_path = settings.BASE_DIR / "data" / "data_clean.csv"
-
-            print("Looking for CSV at:", csv_path)
+            
+            # --- FIX STARTS HERE ---
+            print("Loading FULL Database for lookup...")
 
             if not csv_path.exists():
                 print("ERROR: data_clean.csv not found!")
                 MODEL_CACHE['data'] = None
                 return
 
+            # Load ALL rows from the CSV, regardless of the train/test split.
+            # The model is already trained on the split; the DF is only for UI lookup.
             df = pd.read_csv(csv_path)
 
-            print("CSV loaded successfully:", df.shape)
+            print("FULL CSV loaded successfully:", df.shape)
 
             MODEL_CACHE['data'] = df
+            # --- FIX ENDS HERE ---
 
         except Exception as e:
             print("Load error:", e)
@@ -299,3 +308,285 @@ def predict_view(request):
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
+
+
+#! ##############################################################################
+
+
+import json
+import os
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.conf import settings
+from .models import Plant
+
+# Load Algeria agro data
+ALGERIA_DATA_PATH = os.path.join(settings.BASE_DIR, 'algeria_agro_data.json')
+
+def load_algeria_data():
+    """Load Algeria agricultural data from JSON file"""
+    try:
+        with open(ALGERIA_DATA_PATH, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def user_profile(request):
+    """User profile page with plant recommendations"""
+    algeria_data = load_algeria_data()
+    
+    # Get user's selected wilaya from session or query params
+    selected_wilaya = request.GET.get('wilaya') or request.session.get('user_wilaya')
+    
+    context = {
+        'algeria_data': algeria_data,
+        'selected_wilaya': selected_wilaya
+    }
+    
+    return render(request, 'core/profile.html', context)
+
+
+def get_wilaya_recommendations_api(request):
+    """API endpoint to get plant recommendations for a specific wilaya"""
+    wilaya_name = request.GET.get('wilaya')
+    
+    if not wilaya_name:
+        return JsonResponse({'error': 'Wilaya parameter required'}, status=400)
+    
+    # Load Algeria data
+    algeria_data = load_algeria_data()
+    
+    # Find the wilaya data
+    wilaya_info = None
+    for region in algeria_data:
+        if region['wilaya'].lower() == wilaya_name.lower():
+            wilaya_info = region
+            break
+    
+    if not wilaya_info:
+        return JsonResponse({'error': 'Wilaya not found'}, status=404)
+    
+    # Extract environmental parameters
+    air_temp = float(wilaya_info['temperature_celsius_air'])
+    humidity = int(wilaya_info['humidity_percent_air'])
+    soil_moisture = float(wilaya_info['soil_moisture_m3_m3'])
+    soil_temp_surface = float(wilaya_info['soil_temperature_0cm'])
+    soil_temp_10cm = float(wilaya_info['soil_temperature_10cm'])
+    
+    # Calculate average soil temperature
+    avg_soil_temp = (soil_temp_surface + soil_temp_10cm) / 2
+    
+    # Determine climate classification
+    climate_type = classify_climate(air_temp, humidity, soil_moisture)
+    
+    # Get recommended plants based on environmental conditions
+    recommended_plants = find_compatible_plants(
+        air_temp=air_temp,
+        humidity=humidity,
+        soil_moisture=soil_moisture,
+        avg_soil_temp=avg_soil_temp
+    )
+    
+    # Calculate compatibility scores
+    plants_with_scores = []
+    for plant in recommended_plants:
+        score = calculate_compatibility_score(
+            plant=plant,
+            air_temp=air_temp,
+            humidity=humidity,
+            soil_moisture=soil_moisture,
+            avg_soil_temp=avg_soil_temp
+        )
+        
+        plants_with_scores.append({
+            'id': plant.id,
+            'genus': plant.Genus,
+            'family': plant.Family,
+            'order': plant.Order,
+            'image_url': plant.image_url,
+            'compatibility_score': round(score, 1),
+            'temp_match': abs(plant.tavg - air_temp) if plant.tavg else None,
+            'reasons': get_compatibility_reasons(plant, wilaya_info, score)
+        })
+    
+    # Sort by compatibility score
+    plants_with_scores.sort(key=lambda x: x['compatibility_score'], reverse=True)
+    
+    return JsonResponse({
+        'wilaya': wilaya_info,
+        'climate_type': climate_type,
+        'recommended_plants': plants_with_scores[:50],  # Top 50 recommendations
+        'total_compatible': len(plants_with_scores),
+        'environmental_summary': {
+            'air_temperature': air_temp,
+            'humidity': humidity,
+            'soil_moisture': soil_moisture,
+            'avg_soil_temp': avg_soil_temp
+        }
+    })
+
+
+def classify_climate(air_temp, humidity, soil_moisture):
+    """Classify climate type based on environmental parameters"""
+    if humidity < 30:
+        if air_temp > 20:
+            return {'type': 'Hot Desert', 'icon': '🏜️', 'description': 'Very hot and dry conditions'}
+        else:
+            return {'type': 'Cold Desert', 'icon': '🌵', 'description': 'Arid with moderate temperatures'}
+    elif humidity < 50:
+        if air_temp > 15:
+            return {'type': 'Semi-Arid', 'icon': '🌾', 'description': 'Dry with warm temperatures'}
+        else:
+            return {'type': 'Cool Semi-Arid', 'icon': '🍂', 'description': 'Dry with cool temperatures'}
+    elif humidity < 70:
+        if air_temp > 18:
+            return {'type': 'Mediterranean', 'icon': '🌿', 'description': 'Warm with moderate humidity'}
+        else:
+            return {'type': 'Temperate', 'icon': '🍃', 'description': 'Moderate temperatures and humidity'}
+    else:
+        if air_temp > 20:
+            return {'type': 'Humid Subtropical', 'icon': '🌴', 'description': 'Warm and humid'}
+        else:
+            return {'type': 'Oceanic', 'icon': '🌊', 'description': 'Cool and humid'}
+
+from django.db.models import Min, Max
+
+# fetch min/max once
+def get_stats():
+    return Plant.objects.aggregate(
+        tmin=Min('tavg'), tmax=Max('tavg'),
+        wood_min=Min('perc_wood'), wood_max=Max('perc_wood'),
+        per_min=Min('perc_per'), per_max=Max('perc_per'),
+        ag_min=Min('perc_ag'), ag_max=Max('perc_ag'),
+    )
+
+def norm(value, vmin, vmax):
+    if value is None or vmin is None or vmax is None or vmax == vmin:
+        return 0
+    return (value - vmin) / (vmax - vmin)
+
+
+def find_compatible_plants(air_temp, humidity, soil_moisture, avg_soil_temp):
+    stats = get_stats()
+
+    # dynamic temp tolerance (5% of range or min ±3°C)
+    temp_range = (stats["tmax"] - stats["tmin"]) or 10
+    temp_tol = max(3, temp_range * 0.05)
+
+    qs = Plant.objects.filter(tavg__isnull=False)
+
+    # temp filter
+    qs = qs.filter(
+        tavg__gte=air_temp - temp_tol,
+        tavg__lte=air_temp + temp_tol
+    )
+
+    # dynamic woody/perennial thresholds
+    wood_thr = stats["wood_min"] + (stats["wood_max"] - stats["wood_min"]) * 0.30
+    per_thr = stats["per_min"] + (stats["per_max"] - stats["per_min"]) * 0.50
+
+    if soil_moisture < 0.1:
+        qs = qs.filter(perc_wood__gte=wood_thr) | qs.filter(perc_per__gte=per_thr)
+
+    elif soil_moisture > 0.3:
+        qs = qs.exclude(perc_wood__gte=wood_thr * 1.5)
+
+    return qs.distinct()[:100]
+
+
+
+def calculate_compatibility_score(plant, air_temp, humidity, soil_moisture, avg_soil_temp):
+    stats = get_stats()
+    score = 100
+
+    # ---- temp score (40 pts) ----
+    temp_diff = abs((plant.tavg or air_temp) - air_temp)
+    max_temp_diff = (stats["tmax"] - stats["tmin"]) or 10
+    score -= (temp_diff / max_temp_diff) * 40
+
+    # ---- moisture ----
+    wood_n = norm(plant.perc_wood, stats["wood_min"], stats["wood_max"])
+    per_n  = norm(plant.perc_per, stats["per_min"], stats["per_max"])
+    ag_n   = norm(plant.perc_ag,  stats["ag_min"],  stats["ag_max"])
+
+    if soil_moisture < 0.1:
+        score += wood_n * 15
+        score += per_n * 10
+        score -= ag_n * 5
+
+    elif soil_moisture > 0.3:
+        score += (1 - wood_n) * 10
+        score += ag_n * 10
+
+    else:
+        score += 10
+
+    # ---- agricultural ----
+    score += ag_n * 15
+
+    # ---- hybridization ----
+    if plant.HybProp:
+        score += min(plant.HybProp, 1) * 10
+
+    return int(max(0, min(100, score)))
+
+
+
+def get_compatibility_reasons(plant, wilaya_info, score):
+    reasons = []
+
+    air_temp = float(wilaya_info["temperature_celsius_air"])
+    soil_moisture = float(wilaya_info["soil_moisture_m3_m3"])
+
+    # temp
+    if plant.tavg:
+        diff = abs(plant.tavg - air_temp)
+        if diff <= 2:
+            reasons.append("Excellent temperature match")
+        elif diff <= 5:
+            reasons.append("Good temperature tolerance")
+        else:
+            reasons.append("Requires temperature adaptation")
+
+    # moisture
+    if soil_moisture < 0.1 and plant.perc_wood and plant.perc_wood > 0.5:
+        reasons.append("Drought-resistant woody plant")
+    elif soil_moisture > 0.3:
+        reasons.append("Thrives in moist conditions")
+
+    # agri
+    if plant.perc_ag and plant.perc_ag > 0.5:
+        reasons.append("Proven agricultural crop")
+
+    # breeding
+    if plant.HybProp and plant.HybProp > 0.7:
+        reasons.append("Easy to breed and adapt")
+
+    # perennial
+    if plant.perc_per and plant.perc_per > 0.7:
+        reasons.append("Hardy perennial species")
+
+    # final label
+    if score >= 85:
+        reasons.insert(0, "⭐ Highly recommended")
+    elif score >= 70:
+        reasons.insert(0, "✓ Well-suited")
+    elif score >= 50:
+        reasons.insert(0, "△ Possible with care")
+    else:
+        reasons.insert(0, "⚠ May be challenging")
+
+    return reasons
+
+def save_user_wilaya(request):
+    """Save user's selected wilaya to session"""
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        wilaya = data.get('wilaya')
+        
+        if wilaya:
+            request.session['user_wilaya'] = wilaya
+            return JsonResponse({'success': True, 'wilaya': wilaya})
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)

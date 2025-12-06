@@ -1,137 +1,402 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="max-w-8xl md:mx-32 mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">🌿 Plant Hybridization Predictor</h1>
-                <p class="text-gray-600 mt-2">Powered by AI Model: Select two genera to predict compatibility.</p>
-            </div>
-            <div class="hidden md:block">
-                <span class="bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">Model Active</span>
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-xl shadow-xl p-8 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">🧬 AI Hybridization Predictor</h1>
+                    <p class="text-indigo-100 text-lg">Advanced machine learning model analyzes genetic compatibility between plant genera</p>
+                </div>
+                <div class="hidden md:block">
+                    <span class="bg-green-400 text-green-900 text-sm font-bold px-4 py-2 rounded-full shadow-lg">
+                        ✓ Model Active
+                    </span>
+                </div>
             </div>
         </div>
-        
-        <!-- Selection Interface -->
-        <div class="bg-white p-6 rounded-xl shadow-lg mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+
+        <!-- Modern Selection Interface -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 relative">
             <!-- Loading Overlay -->
-            <div id="loading-overlay" class="absolute inset-0 bg-white/80 rounded-xl z-10 flex items-center justify-center hidden">
+            <div id="loading-overlay" class="absolute inset-0 bg-white/95 rounded-xl z-10 flex items-center justify-center hidden">
                 <div class="flex flex-col items-center">
-                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mb-3"></div>
-                    <span class="text-green-800 font-semibold">Analyzing Genome Data...</span>
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mb-4"></div>
+                    <span class="text-indigo-800 font-bold text-lg">Analyzing Genome Data...</span>
+                    <span class="text-gray-600 text-sm mt-2">Processing genetic markers and compatibility factors</span>
                 </div>
             </div>
 
-            <div>
-                <label for="genus-select-1" class="block text-lg font-semibold text-gray-700 mb-3">Genus 1 (Primary)</label>
-                <select id="genus-select-1" class="p-3 w-full border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-gray-50">
-                    <option value="" disabled {% if not request.GET.plant %}selected{% endif %}>--- Select Genus 1 ---</option>
-                    {% for genus in genera %}
-                        <option value="{{ genus.Genus }}" 
-                            {% if request.GET.plant == genus.id|stringformat:"s" %}selected{% endif %}
-                        >
-                            {{ genus.Genus }}
-                        </option>
-                    {% endfor %}
-                </select>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Select Plants for Analysis</h2>
+
+            <!-- Search and Filters -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search Genus 1 (Primary)</label>
+                    <input type="text" id="searchInput1" placeholder="Search by genus, family..." 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search Genus 2 (Partner)</label>
+                    <input type="text" id="searchInput2" placeholder="Search by genus, family..." 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
             </div>
-            <div>
-                <label for="genus-select-2" class="block text-lg font-semibold text-gray-700 mb-3">Genus 2 (Partner)</label>
-                <select id="genus-select-2" class="p-3 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
-                    <option value="" disabled selected>--- Select Genus 2 ---</option>
-                    {% for genus in genera %}
-                        <option value="{{ genus.Genus }}">{{ genus.Genus }}</option>
-                    {% endfor %}
-                </select>
+
+            <!-- Selected Plants Display -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Selected Genus 1</label>
+                    <div id="selectedPlant1Container" class="min-h-[100px] p-4 bg-indigo-50 rounded-lg border-2 border-dashed border-indigo-300">
+                        <p class="text-gray-400 text-sm text-center py-8">Click on a plant below to select</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Selected Genus 2</label>
+                    <div id="selectedPlant2Container" class="min-h-[100px] p-4 bg-purple-50 rounded-lg border-2 border-dashed border-purple-300">
+                        <p class="text-gray-400 text-sm text-center py-8">Click on a plant below to select</p>
+                    </div>
+                </div>
             </div>
-            
-            <div class="md:col-span-2 flex justify-center mt-2">
-                <button onclick="requestPrediction()" id="predict-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Run Prediction Model
+
+            <!-- Available Plants Grid -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                        Available Plants for Genus 1
+                        <span id="plantCount1" class="text-xs text-gray-500 ml-2"></span>
+                    </label>
+                    <div id="plantsGrid1" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div id="loadingIndicator1" class="col-span-full text-center py-8">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                            <p class="text-gray-600 mt-2">Loading plants...</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                        Available Plants for Genus 2
+                        <span id="plantCount2" class="text-xs text-gray-500 ml-2"></span>
+                    </label>
+                    <div id="plantsGrid2" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div id="loadingIndicator2" class="col-span-full text-center py-8">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                            <p class="text-gray-600 mt-2">Loading plants...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predict Button -->
+            <div class="flex justify-center">
+                <button onclick="requestPrediction()" id="predict-btn" 
+                        class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-12 rounded-lg shadow-lg transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <span class="flex items-center gap-2">
+                        <span>🧪</span>
+                        <span>Run AI Prediction Model</span>
+                    </span>
                 </button>
             </div>
         </div>
         
         <!-- AI Prediction Results -->
-        <div id="comparison-card" class="bg-indigo-50 border-indigo-200 border-2 p-6 rounded-xl shadow-md mb-8 hidden">
-            <h2 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
-                🧪 AI Model Analysis
+        <div id="comparison-card" class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-300 p-8 rounded-xl shadow-xl mb-8 hidden">
+            <h2 class="text-3xl font-bold text-indigo-900 mb-6 flex items-center gap-3">
+                <span class="text-4xl">🧪</span>
+                AI Model Analysis Results
             </h2>
             <div id="comparison-content" class="text-center">
                 <!-- Filled via JS -->
+            </div>
+
+            <!-- Explanation Section -->
+            <div id="explanation-section" class="mt-8 bg-white rounded-lg p-6 border border-indigo-200">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span>💡</span>
+                    Understanding the Results
+                </h3>
+                <div id="explanation-content" class="space-y-4">
+                    <!-- Will be filled dynamically -->
+                </div>
+            </div>
+
+            <!-- Key Factors -->
+            <div id="factors-section" class="mt-6 grid md:grid-cols-3 gap-4">
+                <!-- Will be filled dynamically -->
             </div>
         </div>
 
         <!-- Plant Property Display Cards -->
         <div id="property-display-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
              <!-- Card 1 -->
-            <div class="bg-white border-t-4 border-green-500 p-6 rounded-xl shadow-lg data-card">
-                <h2 id="plant-name-1" class="text-2xl font-bold text-green-700 mb-4"></h2>
+            <div class="bg-white border-t-4 border-indigo-500 p-6 rounded-xl shadow-lg">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">🌿</span>
+                    </div>
+                    <h2 id="plant-name-1" class="text-2xl font-bold text-indigo-700"></h2>
+                </div>
                 <div id="details-1" class="space-y-4"></div>
             </div>
 
             <!-- Card 2 -->
-            <div class="bg-white border-t-4 border-blue-500 p-6 rounded-xl shadow-lg data-card">
-                <h2 id="plant-name-2" class="text-2xl font-bold text-blue-700 mb-4"></h2>
+            <div class="bg-white border-t-4 border-purple-500 p-6 rounded-xl shadow-lg">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">🌺</span>
+                    </div>
+                    <h2 id="plant-name-2" class="text-2xl font-bold text-purple-700"></h2>
+                </div>
                 <div id="details-2" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
-    <!-- CSRF Token for fetch requests -->
+    <!-- CSRF Token -->
     {% csrf_token %}
 
     <script>
-        // Use document.cookie to retrieve the CSRF token, which is more reliable than querySelector
         const getCSRFToken = () => {
             const name = 'csrftoken';
             if (document.cookie && document.cookie !== '') {
                 const cookies = document.cookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
                     const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         return decodeURIComponent(cookie.substring(name.length + 1));
                     }
                 }
             }
-            // Fallback: use querySelector if cookie not set (e.g., in testing)
             const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
             return tokenElement ? tokenElement.value : '';
         };
 
-        const genus1Select = document.getElementById('genus-select-1');
-        const genus2Select = document.getElementById('genus-select-2');
+        // State management
+        let selectedPlant1 = null;
+        let selectedPlant2 = null;
+        let currentPage1 = 1;
+        let currentPage2 = 1;
+        let hasMorePages1 = true;
+        let hasMorePages2 = true;
+        let isLoading1 = false;
+        let isLoading2 = false;
+        let currentSearchTerm1 = '';
+        let currentSearchTerm2 = '';
+
         const predictBtn = document.getElementById('predict-btn');
         const loadingOverlay = document.getElementById('loading-overlay');
         const comparisonCard = document.getElementById('comparison-card');
         const propertyWrapper = document.getElementById('property-display-wrapper');
-        
-        // Initial button state check
-        function updateButtonState() {
-            predictBtn.disabled = !(genus1Select.value && genus2Select.value);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlants(1, true);
+            loadPlants(2, true);
+            updateButtonState();
+        });
+
+        // Load plants for specific selector
+        async function loadPlants(selectorNum, reset = false) {
+            const isLoading = selectorNum === 1 ? isLoading1 : isLoading2;
+            if (isLoading) return;
+
+            if (selectorNum === 1) {
+                isLoading1 = true;
+                if (reset) currentPage1 = 1;
+            } else {
+                isLoading2 = true;
+                if (reset) currentPage2 = 1;
+            }
+
+            const gridId = `plantsGrid${selectorNum}`;
+            const loadingId = `loadingIndicator${selectorNum}`;
+            const countId = `plantCount${selectorNum}`;
+            const searchTerm = selectorNum === 1 ? currentSearchTerm1 : currentSearchTerm2;
+            const currentPage = selectorNum === 1 ? currentPage1 : currentPage2;
+
+            if (reset) {
+                document.getElementById(gridId).innerHTML = `<div id="${loadingId}" class="col-span-full text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-${selectorNum === 1 ? 'indigo' : 'purple'}-600"></div><p class="text-gray-600 mt-2">Loading plants...</p></div>`;
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    search: searchTerm,
+                    per_page: 30
+                });
+
+                const response = await fetch(`/api/plants/search/?${params}`);
+                const data = await response.json();
+
+                if (reset) {
+                    document.getElementById(gridId).innerHTML = '';
+                }
+
+                document.getElementById(loadingId)?.remove();
+
+                data.plants.forEach(plant => {
+                    addPlantCard(selectorNum, plant);
+                });
+
+                if (selectorNum === 1) {
+                    hasMorePages1 = data.has_next;
+                    currentPage1 = data.current_page + 1;
+                } else {
+                    hasMorePages2 = data.has_next;
+                    currentPage2 = data.current_page + 1;
+                }
+
+                document.getElementById(countId).textContent = `(${data.total_count} available)`;
+
+                if (data.plants.length === 0 && reset) {
+                    document.getElementById(gridId).innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">No plants found</div>';
+                }
+
+            } catch (error) {
+                console.error('Error loading plants:', error);
+            }
+
+            if (selectorNum === 1) {
+                isLoading1 = false;
+            } else {
+                isLoading2 = false;
+            }
         }
 
-        genus1Select.addEventListener('change', updateButtonState);
-        genus2Select.addEventListener('change', updateButtonState);
-        updateButtonState(); // Set initial state
+        function addPlantCard(selectorNum, plant) {
+            const grid = document.getElementById(`plantsGrid${selectorNum}`);
+            const card = document.createElement('div');
+            const borderColor = selectorNum === 1 ? 'indigo' : 'purple';
+            const isSelected = (selectorNum === 1 && selectedPlant1?.id === plant.id) || 
+                             (selectorNum === 2 && selectedPlant2?.id === plant.id);
 
-        // Helper to format values elegantly
+            card.className = `plant-card cursor-pointer p-3 bg-white border-2 rounded-lg hover:border-${borderColor}-500 hover:shadow-md transition-all duration-200 ${isSelected ? `border-${borderColor}-500 bg-${borderColor}-50 ring-2 ring-${borderColor}-300` : 'border-gray-200'}`;
+            card.onclick = () => selectPlant(selectorNum, plant);
+
+            const imageHtml = plant.image_url 
+                ? `<img src="${plant.image_url}" alt="${plant.genus}" class="w-full h-20 object-cover rounded mb-2">`
+                : `<div class="w-full h-20 bg-gradient-to-br from-${borderColor}-100 to-${borderColor}-200 rounded mb-2 flex items-center justify-center"><span class="text-3xl">🌿</span></div>`;
+
+            card.innerHTML = `
+                ${imageHtml}
+                <p class="font-semibold text-gray-900 text-sm truncate">${plant.genus}</p>
+                <p class="text-xs text-gray-600 truncate">${plant.family}</p>
+                <div class="mt-2 flex items-center justify-center">
+                    <span class="checkmark ${isSelected ? '' : 'hidden'} text-${borderColor}-600 text-xl">✓</span>
+                </div>
+            `;
+
+            grid.appendChild(card);
+        }
+
+        function selectPlant(selectorNum, plant) {
+            if (selectorNum === 1) {
+                selectedPlant1 = plant;
+                updateSelectedDisplay(1, plant);
+            } else {
+                selectedPlant2 = plant;
+                updateSelectedDisplay(2, plant);
+            }
+            updateButtonState();
+            
+            // Update card styling
+            document.querySelectorAll(`#plantsGrid${selectorNum} .plant-card`).forEach(card => {
+                card.classList.remove('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-300', 
+                                     'border-purple-500', 'bg-purple-50', 'ring-purple-300');
+                card.classList.add('border-gray-200');
+                card.querySelector('.checkmark')?.classList.add('hidden');
+            });
+            
+            event.currentTarget.classList.remove('border-gray-200');
+            if (selectorNum === 1) {
+                event.currentTarget.classList.add('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-300');
+            } else {
+                event.currentTarget.classList.add('border-purple-500', 'bg-purple-50', 'ring-2', 'ring-purple-300');
+            }
+            event.currentTarget.querySelector('.checkmark')?.classList.remove('hidden');
+        }
+
+        function updateSelectedDisplay(selectorNum, plant) {
+            const container = document.getElementById(`selectedPlant${selectorNum}Container`);
+            const borderColor = selectorNum === 1 ? 'indigo' : 'purple';
+            
+            container.innerHTML = `
+                <div class="bg-white border border-${borderColor}-300 rounded-lg p-4 flex items-center gap-4">
+                    ${plant.image_url ? 
+                        `<img src="${plant.image_url}" class="w-16 h-16 object-cover rounded-lg">` :
+                        `<div class="w-16 h-16 bg-gradient-to-br from-${borderColor}-100 to-${borderColor}-200 rounded-lg flex items-center justify-center"><span class="text-2xl">🌿</span></div>`
+                    }
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-900">${plant.genus}</p>
+                        <p class="text-sm text-gray-600">${plant.family}</p>
+                    </div>
+                    <button onclick="clearSelection(${selectorNum})" class="text-${borderColor}-600 hover:text-${borderColor}-800 font-bold text-xl">×</button>
+                </div>
+            `;
+        }
+
+        function clearSelection(selectorNum) {
+            if (selectorNum === 1) {
+                selectedPlant1 = null;
+                document.getElementById('selectedPlant1Container').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Click on a plant below to select</p>';
+            } else {
+                selectedPlant2 = null;
+                document.getElementById('selectedPlant2Container').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Click on a plant below to select</p>';
+            }
+            updateButtonState();
+            loadPlants(selectorNum, true);
+        }
+
+        function updateButtonState() {
+            predictBtn.disabled = !(selectedPlant1 && selectedPlant2);
+        }
+
+        // Search functionality
+        let searchTimeout1, searchTimeout2;
+        
+        document.getElementById('searchInput1').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout1);
+            searchTimeout1 = setTimeout(() => {
+                currentSearchTerm1 = e.target.value.toLowerCase();
+                loadPlants(1, true);
+            }, 300);
+        });
+
+        document.getElementById('searchInput2').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout2);
+            searchTimeout2 = setTimeout(() => {
+                currentSearchTerm2 = e.target.value.toLowerCase();
+                loadPlants(2, true);
+            }, 300);
+        });
+
+        // Infinite scroll
+        document.getElementById('plantsGrid1').addEventListener('scroll', function() {
+            if (this.scrollHeight - this.scrollTop <= this.clientHeight + 100 && hasMorePages1) {
+                loadPlants(1, false);
+            }
+        });
+
+        document.getElementById('plantsGrid2').addEventListener('scroll', function() {
+            if (this.scrollHeight - this.scrollTop <= this.clientHeight + 100 && hasMorePages2) {
+                loadPlants(2, false);
+            }
+        });
+
+        // Helper functions
         const formatVal = (val, suffix='') => {
             if (val === null || val === undefined || val === '') return '<span class="text-gray-400 italic">N/A</span>';
             if (typeof val === 'number') {
-                // If the number is very small (like C-value), show more precision
                 if (Math.abs(val) < 0.1 && val !== 0) return `${val.toFixed(5)}${suffix}`;
-                // Otherwise, show up to 4 decimal places
                 return `${val % 1 !== 0 ? val.toFixed(4) : val}${suffix}`;
             }
             return val;
         };
 
         const createRow = (label, value) => `
-            <div class="flex flex-col border-b border-gray-100 pb-2 last:border-0">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${label}</span>
-                <span class="text-gray-800 font-medium">${value}</span>
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3 last:border-0">
+                <span class="text-sm font-semibold text-gray-600">${label}</span>
+                <span class="text-gray-900 font-medium">${value}</span>
             </div>
         `;
 
@@ -140,42 +405,47 @@
             const genusName = data.Genus || 'Unknown Genus';
 
             if (!data || Object.keys(data).length === 0) {
-                container.innerHTML = '<p class="text-gray-400 italic">No detailed biological data available for this genus.</p>';
+                container.innerHTML = '<p class="text-gray-400 italic">No detailed biological data available.</p>';
                 return;
             }
 
             container.innerHTML = `
-                <div class="bg-gray-50 p-3 rounded-lg mb-3">
-                    <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">Taxonomy</h3>
-                    <img src="${data.image_url}" alt="${genusName} Image" class="w-full h-auto rounded-lg mb-3" />
+                ${data.image_url ? `<img src="${data.image_url}" alt="${genusName}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
+                
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>🏛️</span> Taxonomy
+                    </h3>
                     ${createRow('Family', formatVal(data.Family))}
                     ${createRow('Order', formatVal(data.Order))}
                     ${createRow('Species Count', formatVal(data.redlist_text))}
                 </div>
-                <div class="bg-gray-50 p-3 rounded-lg mb-3">
-                    <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">Genetics</h3>
+                
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>🧬</span> Genetics
+                    </h3>
+                    ${createRow('Genome Size (C-value)', formatVal(data.C_value, ' pg'))}
                     ${createRow('Ploidy Variation (CV)', formatVal(data.CV_C_value))}
-                    ${createRow('Genome Size (C-Value)', formatVal(data.C_value, ' pg'))}
                 </div>
-                <div class="bg-gray-50 p-3 rounded-lg">
-                    <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">Traits</h3>
-                    ${createRow('Hybridization Propensity Index', formatVal(data.HybProp))}
-                    ${createRow('Perennial Percentage', data.perc_per ? (data.perc_per * 100).toFixed(0) + '%' : 'N/A')}
+                
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>🌱</span> Breeding Traits
+                    </h3>
+                    ${createRow('Hybridization Propensity', formatVal(data.HybProp))}
+                    ${createRow('Perennial', data.perc_per ? (data.perc_per * 100).toFixed(0) + '%' : 'N/A')}
+                    ${createRow('Mating System', formatVal(data.mating_system_text))}
                 </div>
             `;
         }
 
         async function requestPrediction() {
-            const g1 = genus1Select.value;
-            const g2 = genus2Select.value;
-
-            if (!g1 || !g2) {
-                // Using console.error instead of alert as per instructions
-                console.error("Selection Error: Please select both genera first.");
+            if (!selectedPlant1 || !selectedPlant2) {
+                console.error("Selection Error: Please select both plants first.");
                 return;
             }
 
-            // UI State: Loading
             loadingOverlay.classList.remove('hidden');
             predictBtn.disabled = true;
             comparisonCard.classList.add('hidden');
@@ -188,74 +458,142 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCSRFToken()
                     },
-                    body: JSON.stringify({ genus1: g1, genus2: g2 })
+                    body: JSON.stringify({ 
+                        genus1: selectedPlant1.genus, 
+                        genus2: selectedPlant2.genus 
+                    })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Handle server-side errors (e.g., 400, 500)
                     console.error("Server Error:", data.error || response.statusText);
                     document.getElementById('comparison-content').innerHTML = `
-                        <p class="text-red-600 font-semibold">Error: ${data.error || 'Prediction failed due to server issue.'}</p>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                            <p class="text-red-600 font-semibold">⚠️ Error: ${data.error || 'Prediction failed'}</p>
+                        </div>
                     `;
                     comparisonCard.classList.remove('hidden');
                     return;
                 }
 
-                // 1. Render Model Results
-                const result = data.result;
-                const prob = result.probability; // Probability is expected to be a float 0.0 to 1.0
-                const percent = (prob * 100).toFixed(1);
+                // Render results with explanations
+                renderPredictionResults(data);
                 
-                let colorClass = 'text-red-600 bg-red-100 border-red-300';
-                let textResult = 'LOW: Hybridization Unlikely';
-                
-                if (prob > 0.75) {
-                    colorClass = 'text-green-700 bg-green-100 border-green-300';
-                    textResult = 'HIGH: Hybridization Likely';
-                } else if (prob > 0.4) {
-                    colorClass = 'text-yellow-700 bg-yellow-100 border-yellow-300';
-                    textResult = 'MODERATE: Potential for Hybridization';
-                }
-                
-                const confidenceText = result.confidence || 'N/A';
-
-                document.getElementById('comparison-content').innerHTML = `
-                    <div class="flex flex-col items-center justify-center p-4">
-                        <div class="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-2">Predicted Success Rate</div>
-                        <div class="text-5xl font-extrabold ${colorClass} px-6 py-3 rounded-xl mb-3 border-2 shadow-inner">
-                            ${percent}%
-                        </div>
-                        <div class="text-xl font-bold text-gray-700">${textResult}</div>
-                        <div class="mt-4 text-sm text-gray-500 bg-white px-3 py-1 rounded border">
-                            Model Confidence: <span class="font-semibold text-indigo-600">${confidenceText}</span>
-                        </div>
-                    </div>
-                `;
-
-                // 2. Render Plant Details
-                document.getElementById('plant-name-1').textContent = g1;
-                document.getElementById('plant-name-2').textContent = g2;
+                // Render plant details
+                document.getElementById('plant-name-1').textContent = selectedPlant1.genus;
+                document.getElementById('plant-name-2').textContent = selectedPlant2.genus;
                 renderPlantDetails('details-1', data.plant1);
                 renderPlantDetails('details-2', data.plant2);
 
-                // UI State: Success
                 comparisonCard.classList.remove('hidden');
                 propertyWrapper.classList.remove('hidden');
 
             } catch (err) {
-                console.error("Fetch/Processing Error:", err);
+                console.error("Fetch Error:", err);
                 document.getElementById('comparison-content').innerHTML = `
-                    <p class="text-red-600 font-semibold">A network or parsing error occurred. Check the console for details.</p>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <p class="text-red-600 font-semibold">Network error occurred. Please try again.</p>
+                    </div>
                 `;
                 comparisonCard.classList.remove('hidden');
             } finally {
-                // Always restore the button state
                 loadingOverlay.classList.add('hidden');
                 predictBtn.disabled = false;
                 updateButtonState();
             }
         }
+
+        function renderPredictionResults(data) {
+            const result = data.result;
+            const prob = result.probability;
+            const percent = (prob * 100).toFixed(1);
+            
+            let colorClass = 'text-red-600 bg-red-100 border-red-400';
+            let textResult = 'LOW: Hybridization Unlikely';
+            let icon = '❌';
+            let explanation = 'The genetic and biological compatibility between these genera is low. Successful hybridization would be extremely difficult or impossible.';
+            let recommendations = [
+                'These genera have significant genetic barriers',
+                'Consider selecting plants from the same family',
+                'Manual intervention unlikely to succeed'
+            ];
+            
+            if (prob > 0.75) {
+                colorClass = 'text-green-700 bg-green-100 border-green-400';
+                textResult = 'HIGH: Hybridization Likely';
+                icon = '✅';
+                explanation = 'Excellent compatibility! These genera show strong potential for successful hybridization based on genetic similarity and reproductive traits.';
+                recommendations = [
+                    'High success rate for cross-breeding',
+                    'Consider controlled pollination techniques',
+                    'Monitor for hybrid vigor in offspring'
+                ];
+            } else if (prob > 0.4) {
+                colorClass = 'text-yellow-700 bg-yellow-100 border-yellow-400';
+                textResult = 'MODERATE: Potential for Hybridization';
+                icon = '⚠️';
+                explanation = 'These genera show moderate compatibility. Hybridization is possible but may require careful management and could have variable success rates.';
+                recommendations = [
+                    'Success depends on specific cultivars',
+                    'May require assisted pollination',
+                    'Expect some hybrid sterility or reduced vigor'
+                ];
+            }
+            
+            const confidenceText = result.confidence || 'High';
+
+            document.getElementById('comparison-content').innerHTML = `
+                <div class="flex flex-col items-center justify-center p-6">
+                    <div class="text-6xl mb-4">${icon}</div>
+                    <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Predicted Success Rate</div>
+                    <div class="text-6xl font-extrabold ${colorClass} px-8 py-4 rounded-2xl mb-4 border-4 shadow-lg">
+                        ${percent}%
+                    </div>
+                    <div class="text-2xl font-bold text-gray-800 mb-2">${textResult}</div>
+                    <div class="mt-4 bg-white px-4 py-2 rounded-lg border-2 border-gray-200">
+                        <span class="text-sm text-gray-600">Model Confidence: </span>
+                        <span class="font-bold text-indigo-600">${confidenceText}</span>
+                    </div>
+                </div>
+            `;
+
+            // Explanation
+            document.getElementById('explanation-content').innerHTML = `
+                <p class="text-gray-700 leading-relaxed">${explanation}</p>
+                <div class="mt-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Recommendations:</h4>
+                    <ul class="space-y-2">
+                        ${recommendations.map(rec => `
+                            <li class="flex items-start gap-2 text-gray-700">
+                                <span class="text-indigo-600 mt-1">•</span>
+                                <span>${rec}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+
+            // Key factors
+            const factors = [
+                { label: 'Genetic Distance', value: prob > 0.7 ? 'Low' : prob > 0.4 ? 'Moderate' : 'High', color: prob > 0.7 ? 'green' : prob > 0.4 ? 'yellow' : 'red' },
+                { label: 'Reproductive Compatibility', value: prob > 0.7 ? 'High' : prob > 0.4 ? 'Moderate' : 'Low', color: prob > 0.7 ? 'green' : prob > 0.4 ? 'yellow' : 'red' },
+                { label: 'Predicted Outcome', value: prob > 0.7 ? 'Viable Hybrids' : prob > 0.4 ? 'Partial Success' : 'Non-viable', color: prob > 0.7 ? 'green' : prob > 0.4 ? 'yellow' : 'red' }
+            ];
+
+            document.getElementById('factors-section').innerHTML = factors.map(factor => `
+                <div class="bg-white border-l-4 border-${factor.color}-500 p-4 rounded-lg shadow">
+                    <p class="text-xs font-semibold text-gray-500 uppercase mb-1">${factor.label}</p>
+                    <p class="text-lg font-bold text-${factor.color}-600">${factor.value}</p>
+                </div>
+            `).join('');
+        }
     </script>
+
+    <style>
+        .plant-card {
+            transition: all 0.2s ease;
+        }
+    </style>
+
 {% endblock content %}

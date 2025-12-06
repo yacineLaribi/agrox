@@ -1,0 +1,582 @@
+[
+  {
+    "wilaya": "Adrar",
+    "latitude": 27.877,
+    "longitude": -0.2934,
+    "temperature_celsius_air": "14.49",
+    "humidity_percent_air": 20,
+    "soil_temperature_0cm": "27.18",
+    "soil_moisture_m3_m3": 0.016,
+    "soil_temperature_10cm": "10.54"
+  },
+  {
+    "wilaya": "Chlef",
+    "latitude": 36.1706,
+    "longitude": 1.334,
+    "temperature_celsius_air": "12.41",
+    "humidity_percent_air": 84,
+    "soil_temperature_0cm": "15.14",
+    "soil_moisture_m3_m3": 0.214,
+    "soil_temperature_10cm": "10.20"
+  },
+  {
+    "wilaya": "Laghouat",
+    "latitude": 33.8,
+    "longitude": 2.875,
+    "temperature_celsius_air": "10.85",
+    "humidity_percent_air": 70,
+    "soil_temperature_0cm": "12.00",
+    "soil_moisture_m3_m3": 0.14,
+    "soil_temperature_10cm": "6.04"
+  },
+  {
+    "wilaya": "Oum El Bouaghi",
+    "latitude": 35.8767,
+    "longitude": 7.113,
+    "temperature_celsius_air": "5.32",
+    "humidity_percent_air": 85,
+    "soil_temperature_0cm": "11.47",
+    "soil_moisture_m3_m3": 0.139,
+    "soil_temperature_10cm": "6.10"
+  },
+  {
+    "wilaya": "Batna",
+    "latitude": 35.55,
+    "longitude": 6.1833,
+    "temperature_celsius_air": "6.00",
+    "humidity_percent_air": 82,
+    "soil_temperature_0cm": "5.44",
+    "soil_moisture_m3_m3": 0.154,
+    "soil_temperature_10cm": "3.73"
+  },
+  {
+    "wilaya": "Béjaïa",
+    "latitude": 36.7511,
+    "longitude": 5.0642,
+    "temperature_celsius_air": "13.59",
+    "humidity_percent_air": 82,
+    "soil_temperature_0cm": "12.14",
+    "soil_moisture_m3_m3": 0.354,
+    "soil_temperature_10cm": "11.06"
+  },
+  {
+    "wilaya": "Biskra",
+    "latitude": 34.85,
+    "longitude": 5.7333,
+    "temperature_celsius_air": "13.66",
+    "humidity_percent_air": 57,
+    "soil_temperature_0cm": "16.80",
+    "soil_moisture_m3_m3": 0.125,
+    "soil_temperature_10cm": "8.87"
+  },
+  {
+    "wilaya": "Béchar",
+    "latitude": 31.6167,
+    "longitude": -2.2167,
+    "temperature_celsius_air": "11.67",
+    "humidity_percent_air": 25,
+    "soil_temperature_0cm": "20.75",
+    "soil_moisture_m3_m3": 0.028,
+    "soil_temperature_10cm": "6.85"
+  },
+  {
+    "wilaya": "Blida",
+    "latitude": 36.4686,
+    "longitude": 2.8319,
+    "temperature_celsius_air": "10.72",
+    "humidity_percent_air": 76,
+    "soil_temperature_0cm": "14.46",
+    "soil_moisture_m3_m3": 0.106,
+    "soil_temperature_10cm": "10.00"
+  },
+  {
+    "wilaya": "Bouïra",
+    "latitude": 36.375,
+    "longitude": 3.8967,
+    "temperature_celsius_air": "8.12",
+    "humidity_percent_air": 91,
+    "soil_temperature_0cm": "11.94",
+    "soil_moisture_m3_m3": 0.176,
+    "soil_temperature_10cm": "8.10"
+  },
+  {
+    "wilaya": "Tamanrasset",
+    "latitude": 22.7889,
+    "longitude": 5.5256,
+    "temperature_celsius_air": "11.96",
+    "humidity_percent_air": 14,
+    "soil_temperature_0cm": "24.11",
+    "soil_moisture_m3_m3": 0.067,
+    "soil_temperature_10cm": "11.82"
+  },
+  {
+    "wilaya": "Tébessa",
+    "latitude": 35.4,
+    "longitude": 8.1167,
+    "temperature_celsius_air": "6.54",
+    "humidity_percent_air": 88,
+    "soil_temperature_0cm": "9.27",
+    "soil_moisture_m3_m3": 0.148,
+    "soil_temperature_10cm": "5.88"
+  },
+  {
+    "wilaya": "Tlemcen",
+    "latitude": 34.8828,
+    "longitude": -1.3167,
+    "temperature_celsius_air": "12.45",
+    "humidity_percent_air": 72,
+    "soil_temperature_0cm": "12.40",
+    "soil_moisture_m3_m3": 0.164,
+    "soil_temperature_10cm": "6.62"
+  },
+  {
+    "wilaya": "Tiaret",
+    "latitude": 35.3667,
+    "longitude": 1.3167,
+    "temperature_celsius_air": "9.30",
+    "humidity_percent_air": 85,
+    "soil_temperature_0cm": "10.36",
+    "soil_moisture_m3_m3": 0.208,
+    "soil_temperature_10cm": "6.76"
+  },
+  {
+    "wilaya": "Tizi Ouzou",
+    "latitude": 36.7167,
+    "longitude": 4.05,
+    "temperature_celsius_air": "10.78",
+    "humidity_percent_air": 88,
+    "soil_temperature_0cm": "12.04",
+    "soil_moisture_m3_m3": 0.363,
+    "soil_temperature_10cm": "10.24"
+  },
+  {
+    "wilaya": "Alger (Algiers)",
+    "latitude": 36.7539,
+    "longitude": 3.0589,
+    "temperature_celsius_air": "11.86",
+    "humidity_percent_air": 76,
+    "soil_temperature_0cm": "15.34",
+    "soil_moisture_m3_m3": 0.207,
+    "soil_temperature_10cm": "12.51"
+  },
+  {
+    "wilaya": "Djelfa",
+    "latitude": 34.6667,
+    "longitude": 3.25,
+    "temperature_celsius_air": "5.51",
+    "humidity_percent_air": 95,
+    "soil_temperature_0cm": "10.03",
+    "soil_moisture_m3_m3": 0.117,
+    "soil_temperature_10cm": "4.81"
+  },
+  {
+    "wilaya": "Jijel",
+    "latitude": 36.8167,
+    "longitude": 5.75,
+    "temperature_celsius_air": "13.83",
+    "humidity_percent_air": 78,
+    "soil_temperature_0cm": "11.48",
+    "soil_moisture_m3_m3": 0.486,
+    "soil_temperature_10cm": "11.47"
+  },
+  {
+    "wilaya": "Sétif",
+    "latitude": 36.19,
+    "longitude": 5.41,
+    "temperature_celsius_air": "6.25",
+    "humidity_percent_air": 88,
+    "soil_temperature_0cm": "9.24",
+    "soil_moisture_m3_m3": 0.152,
+    "soil_temperature_10cm": "4.83"
+  },
+  {
+    "wilaya": "Saïda",
+    "latitude": 34.8333,
+    "longitude": 0.15,
+    "temperature_celsius_air": "10.59",
+    "humidity_percent_air": 95,
+    "soil_temperature_0cm": "12.27",
+    "soil_moisture_m3_m3": 0.159,
+    "soil_temperature_10cm": "6.40"
+  },
+  {
+    "wilaya": "Skikda",
+    "latitude": 36.8667,
+    "longitude": 6.9,
+    "temperature_celsius_air": "13.55",
+    "humidity_percent_air": 63,
+    "soil_temperature_0cm": "11.78",
+    "soil_moisture_m3_m3": 0.394,
+    "soil_temperature_10cm": "10.88"
+  },
+  {
+    "wilaya": "Sidi Bel Abbès",
+    "latitude": 35.1939,
+    "longitude": -0.6414,
+    "temperature_celsius_air": "13.52",
+    "humidity_percent_air": 87,
+    "soil_temperature_0cm": "14.65",
+    "soil_moisture_m3_m3": 0.176,
+    "soil_temperature_10cm": "8.66"
+  },
+  {
+    "wilaya": "Annaba",
+    "latitude": 36.9,
+    "longitude": 7.7667,
+    "temperature_celsius_air": "10.98",
+    "humidity_percent_air": 93,
+    "soil_temperature_0cm": "12.65",
+    "soil_moisture_m3_m3": 0.253,
+    "soil_temperature_10cm": "11.87"
+  },
+  {
+    "wilaya": "Guelma",
+    "latitude": 36.45,
+    "longitude": 7.4333,
+    "temperature_celsius_air": "9.22",
+    "humidity_percent_air": 74,
+    "soil_temperature_0cm": "10.23",
+    "soil_moisture_m3_m3": 0.153,
+    "soil_temperature_10cm": "9.40"
+  },
+  {
+    "wilaya": "Constantine",
+    "latitude": 36.35,
+    "longitude": 6.6,
+    "temperature_celsius_air": "8.65",
+    "humidity_percent_air": 84,
+    "soil_temperature_0cm": "9.32",
+    "soil_moisture_m3_m3": 0.201,
+    "soil_temperature_10cm": "6.68"
+  },
+  {
+    "wilaya": "Médéa",
+    "latitude": 36.2675,
+    "longitude": 2.75,
+    "temperature_celsius_air": "5.66",
+    "humidity_percent_air": 90,
+    "soil_temperature_0cm": "13.92",
+    "soil_moisture_m3_m3": 0.061,
+    "soil_temperature_10cm": "8.34"
+  },
+  {
+    "wilaya": "Mostaganem",
+    "latitude": 35.9333,
+    "longitude": 0.0833,
+    "temperature_celsius_air": "16.44",
+    "humidity_percent_air": 88,
+    "soil_temperature_0cm": "18.55",
+    "soil_moisture_m3_m3": 0.312,
+    "soil_temperature_10cm": "13.34"
+  },
+  {
+    "wilaya": "M'Sila",
+    "latitude": 35.7019,
+    "longitude": 4.5472,
+    "temperature_celsius_air": "9.99",
+    "humidity_percent_air": 75,
+    "soil_temperature_0cm": "17.02",
+    "soil_moisture_m3_m3": 0.12,
+    "soil_temperature_10cm": "8.34"
+  },
+  {
+    "wilaya": "Mascara",
+    "latitude": 35.4,
+    "longitude": 0.1333,
+    "temperature_celsius_air": "11.65",
+    "humidity_percent_air": 90,
+    "soil_temperature_0cm": "14.07",
+    "soil_moisture_m3_m3": 0.223,
+    "soil_temperature_10cm": "9.50"
+  },
+  {
+    "wilaya": "Ouargla",
+    "latitude": 31.95,
+    "longitude": 5.3167,
+    "temperature_celsius_air": "13.62",
+    "humidity_percent_air": 43,
+    "soil_temperature_0cm": "23.14",
+    "soil_moisture_m3_m3": 0.083,
+    "soil_temperature_10cm": "10.77"
+  },
+  {
+    "wilaya": "Oran",
+    "latitude": 35.6969,
+    "longitude": -0.6331,
+    "temperature_celsius_air": "15.82",
+    "humidity_percent_air": 88,
+    "soil_temperature_0cm": "18.36",
+    "soil_moisture_m3_m3": 0.243,
+    "soil_temperature_10cm": "13.49"
+  },
+  {
+    "wilaya": "El Bayadh",
+    "latitude": 33.6803,
+    "longitude": 1.0203,
+    "temperature_celsius_air": "7.47",
+    "humidity_percent_air": 91,
+    "soil_temperature_0cm": "10.24",
+    "soil_moisture_m3_m3": 0.104,
+    "soil_temperature_10cm": "3.21"
+  },
+  {
+    "wilaya": "Illizi",
+    "latitude": 26.4719,
+    "longitude": 8.4831,
+    "temperature_celsius_air": "13.08",
+    "humidity_percent_air": 32,
+    "soil_temperature_0cm": "19.69",
+    "soil_moisture_m3_m3": 0.096,
+    "soil_temperature_10cm": "7.72"
+  },
+  {
+    "wilaya": "Bordj Bou Arréridj",
+    "latitude": 36.0667,
+    "longitude": 4.7667,
+    "temperature_celsius_air": "6.33",
+    "humidity_percent_air": 93,
+    "soil_temperature_0cm": "10.37",
+    "soil_moisture_m3_m3": 0.13,
+    "soil_temperature_10cm": "5.56"
+  },
+  {
+    "wilaya": "Boumerdès",
+    "latitude": 36.7667,
+    "longitude": 3.475,
+    "temperature_celsius_air": "12.06",
+    "humidity_percent_air": 74,
+    "soil_temperature_0cm": "14.52",
+    "soil_moisture_m3_m3": 0.306,
+    "soil_temperature_10cm": "11.84"
+  },
+  {
+    "wilaya": "El Tarf",
+    "latitude": 36.75,
+    "longitude": 8.3,
+    "temperature_celsius_air": "11.19",
+    "humidity_percent_air": 73,
+    "soil_temperature_0cm": "10.64",
+    "soil_moisture_m3_m3": 0.352,
+    "soil_temperature_10cm": "9.63"
+  },
+  {
+    "wilaya": "Tindouf",
+    "latitude": 27.671,
+    "longitude": -8.1477,
+    "temperature_celsius_air": "14.63",
+    "humidity_percent_air": 21,
+    "soil_temperature_0cm": "27.83",
+    "soil_moisture_m3_m3": 0.016,
+    "soil_temperature_10cm": "10.79"
+  },
+  {
+    "wilaya": "Tissemsilt",
+    "latitude": 35.5833,
+    "longitude": 1.8333,
+    "temperature_celsius_air": "7.51",
+    "humidity_percent_air": 94,
+    "soil_temperature_0cm": "11.41",
+    "soil_moisture_m3_m3": 0.165,
+    "soil_temperature_10cm": "7.29"
+  },
+  {
+    "wilaya": "El Oued",
+    "latitude": 33.3611,
+    "longitude": 6.8606,
+    "temperature_celsius_air": "13.88",
+    "humidity_percent_air": 47,
+    "soil_temperature_0cm": "22.04",
+    "soil_moisture_m3_m3": 0.066,
+    "soil_temperature_10cm": "11.61"
+  },
+  {
+    "wilaya": "Khenchela",
+    "latitude": 35.4167,
+    "longitude": 7.1333,
+    "temperature_celsius_air": "1.81",
+    "humidity_percent_air": 91,
+    "soil_temperature_0cm": "8.05",
+    "soil_moisture_m3_m3": 0.145,
+    "soil_temperature_10cm": "5.16"
+  },
+  {
+    "wilaya": "Souk Ahras",
+    "latitude": 36.2864,
+    "longitude": 7.9511,
+    "temperature_celsius_air": "6.21",
+    "humidity_percent_air": 80,
+    "soil_temperature_0cm": "8.50",
+    "soil_moisture_m3_m3": 0.226,
+    "soil_temperature_10cm": "6.77"
+  },
+  {
+    "wilaya": "Tipaza",
+    "latitude": 36.5611,
+    "longitude": 2.4417,
+    "temperature_celsius_air": "12.20",
+    "humidity_percent_air": 73,
+    "soil_temperature_0cm": "17.68",
+    "soil_moisture_m3_m3": 0.166,
+    "soil_temperature_10cm": "13.11"
+  },
+  {
+    "wilaya": "Mila",
+    "latitude": 36.3575,
+    "longitude": 6.2625,
+    "temperature_celsius_air": "6.95",
+    "humidity_percent_air": 87,
+    "soil_temperature_0cm": "10.37",
+    "soil_moisture_m3_m3": 0.184,
+    "soil_temperature_10cm": "6.65"
+  },
+  {
+    "wilaya": "Aïn Defla",
+    "latitude": 36.2675,
+    "longitude": 2.0536,
+    "temperature_celsius_air": "10.27",
+    "humidity_percent_air": 90,
+    "soil_temperature_0cm": "16.26",
+    "soil_moisture_m3_m3": 0.097,
+    "soil_temperature_10cm": "9.76"
+  },
+  {
+    "wilaya": "Naâma",
+    "latitude": 33.2667,
+    "longitude": -0.3167,
+    "temperature_celsius_air": "8.82",
+    "humidity_percent_air": 73,
+    "soil_temperature_0cm": "14.19",
+    "soil_moisture_m3_m3": 0.064,
+    "soil_temperature_10cm": "3.64"
+  },
+  {
+    "wilaya": "Aïn Témouchent",
+    "latitude": 35.3,
+    "longitude": -1.15,
+    "temperature_celsius_air": "14.92",
+    "humidity_percent_air": 89,
+    "soil_temperature_0cm": "17.37",
+    "soil_moisture_m3_m3": 0.162,
+    "soil_temperature_10cm": "11.64"
+  },
+  {
+    "wilaya": "Ghardaïa",
+    "latitude": 32.4833,
+    "longitude": 3.6667,
+    "temperature_celsius_air": "11.42",
+    "humidity_percent_air": 50,
+    "soil_temperature_0cm": "19.13",
+    "soil_moisture_m3_m3": 0.041,
+    "soil_temperature_10cm": "9.09"
+  },
+  {
+    "wilaya": "Relizane",
+    "latitude": 35.7333,
+    "longitude": 0.55,
+    "temperature_celsius_air": "14.71",
+    "humidity_percent_air": 89,
+    "soil_temperature_0cm": "17.15",
+    "soil_moisture_m3_m3": 0.181,
+    "soil_temperature_10cm": "11.15"
+  },
+  {
+    "wilaya": "Timimoun",
+    "latitude": 29.2608,
+    "longitude": 0.23,
+    "temperature_celsius_air": "12.21",
+    "humidity_percent_air": 26,
+    "soil_temperature_0cm": "24.70",
+    "soil_moisture_m3_m3": 0.047,
+    "soil_temperature_10cm": "9.44"
+  },
+  {
+    "wilaya": "Bordj Badji Mokhtar",
+    "latitude": 21.3644,
+    "longitude": 0.9231,
+    "temperature_celsius_air": "17.93",
+    "humidity_percent_air": 16,
+    "soil_temperature_0cm": "25.87",
+    "soil_moisture_m3_m3": 0.043,
+    "soil_temperature_10cm": "18.27"
+  },
+  {
+    "wilaya": "Ouled Djellal",
+    "latitude": 34.4253,
+    "longitude": 5.0617,
+    "temperature_celsius_air": "12.90",
+    "humidity_percent_air": 56,
+    "soil_temperature_0cm": "20.75",
+    "soil_moisture_m3_m3": 0.095,
+    "soil_temperature_10cm": "10.53"
+  },
+  {
+    "wilaya": "Béni Abbès",
+    "latitude": 30.1333,
+    "longitude": -2.1667,
+    "temperature_celsius_air": "12.91",
+    "humidity_percent_air": 28,
+    "soil_temperature_0cm": "22.31",
+    "soil_moisture_m3_m3": 0.016,
+    "soil_temperature_10cm": "8.26"
+  },
+  {
+    "wilaya": "In Salah",
+    "latitude": 27.2,
+    "longitude": 2.5,
+    "temperature_celsius_air": "14.51",
+    "humidity_percent_air": 21,
+    "soil_temperature_0cm": "27.82",
+    "soil_moisture_m3_m3": 0.023,
+    "soil_temperature_10cm": "10.77"
+  },
+  {
+    "wilaya": "In Guezzam",
+    "latitude": 19.5667,
+    "longitude": 5.75,
+    "temperature_celsius_air": "18.69",
+    "humidity_percent_air": 17,
+    "soil_temperature_0cm": "32.02",
+    "soil_moisture_m3_m3": 0.056,
+    "soil_temperature_10cm": "19.32"
+  },
+  {
+    "wilaya": "Touggourt",
+    "latitude": 33.1,
+    "longitude": 6.0667,
+    "temperature_celsius_air": "12.06",
+    "humidity_percent_air": 62,
+    "soil_temperature_0cm": "20.81",
+    "soil_moisture_m3_m3": 0.081,
+    "soil_temperature_10cm": "10.92"
+  },
+  {
+    "wilaya": "Djanet",
+    "latitude": 24.55,
+    "longitude": 8.55,
+    "temperature_celsius_air": "11.51",
+    "humidity_percent_air": 26,
+    "soil_temperature_0cm": "27.29",
+    "soil_moisture_m3_m3": 0.039,
+    "soil_temperature_10cm": "10.58"
+  },
+  {
+    "wilaya": "El M'Ghaier",
+    "latitude": 34.6931,
+    "longitude": 5.9228,
+    "temperature_celsius_air": "15.40",
+    "humidity_percent_air": 53,
+    "soil_temperature_0cm": "18.80",
+    "soil_moisture_m3_m3": 0.119,
+    "soil_temperature_10cm": "10.07"
+  },
+  {
+    "wilaya": "El Meniaa",
+    "latitude": 30.5833,
+    "longitude": 2.8833,
+    "temperature_celsius_air": "10.97",
+    "humidity_percent_air": 40,
+    "soil_temperature_0cm": "21.87",
+    "soil_moisture_m3_m3": 0.082,
+    "soil_temperature_10cm": "9.16"
+  }
+]

@@ -6,14 +6,15 @@ app_name = 'core'
 urlpatterns = [
     path('',views.index,name="home"),
     path('predictor/',views.predictor,name="predictor"),
-    path('predict/', views.predict_view, name='predict'),    path('login/',views.login_view,name="login"),
+    path('predict/', views.predict_view, name='predict'),    
+    path('login/',views.login_view,name="login"),
     path('signup/',views.signup,name="signup"),
     path('logout/',views.logout_view,name="logout"),
 
     path('catalog/',views.catalog,name="catalog"),
     # path('comparison/',views.comparison,name="comparison"),
     path('dashboard/',views.dashboard,name="dashboard"),
-    path('profile/',views.profile,name="profile"),
+    path('profile/',views.user_profile,name="profile"),
 
     path('catalog/<int:pk>/', views.plant_detail, name="plant_detail"),
     path('catalog/load-plants/', views.load_plants, name='load_plants'),
@@ -37,5 +38,9 @@ urlpatterns = [
     path('api/plants/dashboard/conservation/', dashboard_views.dashboard_conservation_api, name='dashboard_conservation_api'),
     
     path('chat-with-bot/', chatbot.chat_with_bot, name='chat_with_bot'),
+    path('profile/', views.user_profile, name='user_profile'),
 
+    # Recommendation API endpoints
+    path('api/plants/recommendations/', views.get_wilaya_recommendations_api, name='get_wilaya_recommendations'),
+    path('api/plants/save-wilaya/', views.save_user_wilaya, name='save_user_wilaya'),
 ]

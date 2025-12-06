@@ -1,106 +1,506 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Profile & Crop Recommender</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fb;
-        }
-        .container-card {
-            max-width: 900px;
-            margin: 2rem auto;
-            background-color: white;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-        }
-        .result-card {
-            transition: all 0.3s ease;
-            border-left: 5px solid #059669; /* Teal-600 */
-        }
-        .result-card:hover {
-            box-shadow: 0 4px 15px rgba(5, 150, 136, 0.2);
-            background-color: #f0fdf4; /* Green-50 */
-        }
-    </style>
-</head>
-<body class="p-4 sm:p-8">
-
-    <div class="container-card">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold text-green-700">AgroClimate Recommender</h1>
-            <p class="text-gray-500 mt-2">Personalized crop suggestions for your Algerian Wilaya.</p>
-            <p class="text-xs text-gray-400 mt-1">User ID: <span class="font-mono text-gray-500">{{ user_id }}</span></p>
-        </header>
-
-        <!-- Wilaya Selection Form -->
-        <form method="POST" action="" class="flex flex-col sm:flex-row gap-4 mb-12 p-6 bg-gray-50 rounded-xl shadow-inner">
-            {% csrf_token %}
-            <label for="wilaya" class="block text-lg font-medium text-gray-700 self-center">Select Your Wilaya:</label>
-            <select id="wilaya" name="wilaya" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
-                <option value="" disabled {% if not selected_wilaya %}selected{% endif %}>--- Choose a Region ---</option>
-                {% for wilaya in wilayas %}
-                    <option value="{{ wilaya }}" {% if wilaya == selected_wilaya %}selected{% endif %}>{{ wilaya }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="p-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-150 shadow-md sm:w-auto">
-                Check Suitability
-            </button>
-        </form>
-
-        <!-- Results Display Section -->
-        {% if selected_wilaya %}
-            <section class="mt-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Recommendations for <span class="text-green-600">{{ selected_wilaya }}</span></h2>
-
-                <!-- Current Conditions Card -->
-                {% if current_conditions %}
-                    <div class="mb-8 p-6 bg-white border border-green-200 rounded-xl shadow-lg">
-                        <h3 class="text-xl font-semibold text-green-700 mb-4">Current Environmental Conditions</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {% for key, value in current_conditions.items %}
-                                <div class="bg-green-50 p-3 rounded-lg text-center">
-                                    <p class="text-sm text-gray-500">{{ key }}</p>
-                                    <p class="text-xl font-bold text-green-800">{{ value }}</p>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-
-                <!-- Plant Recommendations -->
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Recommended Plants</h3>
-                
-                {% if suitable_plants %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {% for plant in suitable_plants %}
-                            <div class="result-card p-5 bg-white border border-gray-200 rounded-xl shadow-md">
-                                <h4 class="text-xl font-bold text-teal-600 mb-2">{{ plant.name }}</h4>
-                                <p class="text-gray-600">{{ plant.description }}</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="p-5 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-xl">
-                        <p class="font-semibold">⚠️ No Suitable Plants Found</p>
-                        <p class="text-sm">The current conditions in {{ selected_wilaya }} do not meet the ideal criteria for our defined plants. This climate may be highly localized or require specific seasonal planting.</p>
-                    </div>
-                {% endif %}
-
-            </section>
-        {% else %}
-            <!-- Initial State Message -->
-            <div class="text-center p-10 bg-blue-50 rounded-xl border-blue-200 border">
-                <p class="text-lg text-blue-700 font-semibold">Please select your Wilaya (Region) above to access the agricultural suitability analysis and get personalized plant recommendations.</p>
+{% extends "base.html" %}
+{% block content %}
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200  py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center">
+                <h1 class="text-5xl font-bold mb-4">🌱 Your Growing Profile</h1>
+                <p class="text-xl text-green-500 mb-2">Discover the best plants for your region</p>
+                <p class="text-green-600">Personalized recommendations based on your local climate and soil conditions</p>
             </div>
-        {% endif %}
+        </div>
+    </section>
+    <!-- Profile Summary -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            {% if user.is_authenticated %}
+            <div class="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-green-100 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-28 h-28 bg-green-500 text-white rounded-full flex items-center justify-center text-4xl font-bold">
+                        {{ user.fullname|default:user.username|slice:":1" }}
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ user.fullname|default:user.username }}</h2>
+                        <p class="text-sm text-gray-600">Member since {{ user.date_joined|date:"F Y" }}</p>
+                    </div>
+                </div>
+
+                <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    <div class="bg-white border border-gray-100 rounded-xl p-4">
+                        <p class="text-xs text-gray-500">Email</p>
+                        <p class="font-semibold text-gray-800">{{ user.email }}</p>
+                    </div>
+                    <div class="bg-white border border-gray-100 rounded-xl p-4">
+                        <p class="text-xs text-gray-500">Phone</p>
+                        <p class="font-semibold text-gray-800">{{ user.phone|default:"—" }}</p>
+                    </div>
+                    <div class="bg-white border border-gray-100 rounded-xl p-4">
+                        <p class="text-xs text-gray-500">Farm</p>
+                        <p class="font-semibold text-gray-800">{{ user.farm|default:"Not set" }}</p>
+                    </div>
+                    <div class="bg-white border border-gray-100 rounded-xl p-4">
+                        <p class="text-xs text-gray-500">Region</p>
+                        <p class="font-semibold text-gray-800">{{ user.region|default:"Not set" }}</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 md:ml-4">
+                    <a href="/profile/edit/" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold text-sm text-center hover:bg-green-700">
+                        Edit Profile
+                    </a>
+                    <a href="/accounts/logout/" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 text-center hover:bg-gray-50">
+                        Logout
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-white rounded-2xl shadow p-6 text-center">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Welcome, Guest</h3>
+                <p class="text-gray-600 mb-4">Sign in to save your region and get personalized recommendations.</p>
+                <div class="flex justify-center gap-3">
+                    <a href="/accounts/login/" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold text-sm hover:bg-green-700">Sign in</a>
+                    <a href="/accounts/signup/" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">Create account</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    <!-- Location Selection -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">📍</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Select Your Region</h2>
+                        <p class="text-gray-600">Choose your wilaya to get personalized plant recommendations</p>
+                    </div>
+                </div>
+
+                <!-- Wilaya Selection -->
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Search Your Wilaya</label>
+                        <input type="text" id="wilayaSearch" placeholder="Search by name..." 
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Quick Select</label>
+                        <select id="wilayaSelect" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">-- Select Wilaya --</option>
+                            {% for region in algeria_data %}
+                                <option value="{{ region.wilaya }}" {% if selected_wilaya == region.wilaya %}selected{% endif %}>
+                                    {{ region.wilaya }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Selected Wilaya Display -->
+                <div id="selectedWilayaDisplay" class="hidden bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                                <span class="text-3xl">📍</span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 font-semibold">Currently Viewing</p>
+                                <p id="currentWilayaName" class="text-2xl font-bold text-green-700"></p>
+                            </div>
+                        </div>
+                        <button onclick="clearWilaya()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-gray-700">
+                            Change Location
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Wilaya Grid (when no selection) -->
+                <div id="wilayaGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                    {% for region in algeria_data %}
+                    <button onclick="selectWilaya('{{ region.wilaya }}')" 
+                            class="wilaya-card p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-green-500 hover:shadow-md transition-all duration-200 text-left">
+                        <p class="font-semibold text-gray-900 text-sm">{{ region.wilaya }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ region.temperature_celsius_air }}°C</p>
+                    </button>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-6 text-center">
+                    <button onclick="loadRecommendations()" id="loadRecommendationsBtn" 
+                            class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 px-12 rounded-lg shadow-lg transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            disabled>
+                        <span class="flex items-center gap-2 justify-center">
+                            <span>🌿</span>
+                            <span>Get Plant Recommendations</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading State -->
+    <div id="loadingSection" class="hidden py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mb-4"></div>
+            <p class="text-xl text-gray-700 font-semibold">Analyzing your region's climate...</p>
+            <p class="text-gray-600 mt-2">Finding the best plants for your conditions</p>
+        </div>
     </div>
 
-</body>
-</html>
+    <!-- Climate Information -->
+    <section id="climateSection" class="hidden py-12 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Your Region's Climate</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Temperature Card -->
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">🌡️</span>
+                        <h3 class="font-bold text-gray-800">Temperature</h3>
+                    </div>
+                    <p id="climateTemp" class="text-3xl font-bold text-orange-600"></p>
+                    <p class="text-sm text-gray-600 mt-1">Air Temperature</p>
+                </div>
+
+                <!-- Humidity Card -->
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">💧</span>
+                        <h3 class="font-bold text-gray-800">Humidity</h3>
+                    </div>
+                    <p id="climateHumidity" class="text-3xl font-bold text-blue-600"></p>
+                    <p class="text-sm text-gray-600 mt-1">Relative Humidity</p>
+                </div>
+
+                <!-- Soil Moisture Card -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">🌱</span>
+                        <h3 class="font-bold text-gray-800">Soil Moisture</h3>
+                    </div>
+                    <p id="climateSoil" class="text-3xl font-bold text-green-600"></p>
+                    <p class="text-sm text-gray-600 mt-1">m³/m³</p>
+                </div>
+
+                <!-- Climate Type Card -->
+                <div id="climateTypeCard" class="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span id="climateIcon" class="text-3xl">🌍</span>
+                        <h3 class="font-bold text-gray-800">Climate Type</h3>
+                    </div>
+                    <p id="climateType" class="text-xl font-bold text-purple-600"></p>
+                    <p id="climateDesc" class="text-sm text-gray-600 mt-1"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plant Recommendations -->
+    <section id="recommendationsSection" class="hidden py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Recommended Plants</h2>
+                    <p class="text-gray-600 mt-1">
+                        <span id="totalCompatible" class="font-semibold text-green-600"></span> plants compatible with your region
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="sortPlants('score')" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-semibold sort-btn active">
+                        Best Match
+                    </button>
+                    <button onclick="sortPlants('name')" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-semibold sort-btn">
+                        Name
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="filterByScore('all')" class="filter-btn active px-4 py-2 rounded-lg font-semibold text-sm transition-all">
+                    All Plants
+                </button>
+                <button onclick="filterByScore('excellent')" class="filter-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all">
+                    ⭐ Excellent (85-100)
+                </button>
+                <button onclick="filterByScore('good')" class="filter-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all">
+                    ✓ Good (70-84)
+                </button>
+                <button onclick="filterByScore('moderate')" class="filter-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all">
+                    △ Moderate (50-69)
+                </button>
+            </div>
+
+            <!-- Plants Grid -->
+            <div id="plantsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Will be populated dynamically -->
+            </div>
+
+            <div id="noResults" class="hidden text-center py-12">
+                <div class="text-6xl mb-4">🔍</div>
+                <p class="text-xl text-gray-600">No plants found for this filter</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let selectedWilaya = '{{ selected_wilaya|default:"" }}';
+        let allRecommendations = [];
+        let currentFilter = 'all';
+        let currentSort = 'score';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (selectedWilaya) {
+                updateWilayaDisplay();
+                loadRecommendations();
+            }
+        });
+
+        // Wilaya search
+        document.getElementById('wilayaSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.wilaya-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        // Wilaya select
+        document.getElementById('wilayaSelect').addEventListener('change', function(e) {
+            if (e.target.value) {
+                selectWilaya(e.target.value);
+            }
+        });
+
+        function selectWilaya(wilaya) {
+            selectedWilaya = wilaya;
+            updateWilayaDisplay();
+            document.getElementById('loadRecommendationsBtn').disabled = false;
+            
+            // Save to session
+            fetch('/api/plants/save-wilaya/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ wilaya: wilaya })
+            });
+        }
+
+        function updateWilayaDisplay() {
+            document.getElementById('currentWilayaName').textContent = selectedWilaya;
+            document.getElementById('selectedWilayaDisplay').classList.remove('hidden');
+            document.getElementById('wilayaGrid').classList.add('hidden');
+            document.getElementById('wilayaSelect').value = selectedWilaya;
+        }
+
+        function clearWilaya() {
+            selectedWilaya = '';
+            document.getElementById('selectedWilayaDisplay').classList.add('hidden');
+            document.getElementById('wilayaGrid').classList.remove('hidden');
+            document.getElementById('loadRecommendationsBtn').disabled = true;
+            document.getElementById('climateSection').classList.add('hidden');
+            document.getElementById('recommendationsSection').classList.add('hidden');
+        }
+
+        async function loadRecommendations() {
+            if (!selectedWilaya) return;
+
+            // Show loading
+            document.getElementById('loadingSection').classList.remove('hidden');
+            document.getElementById('climateSection').classList.add('hidden');
+            document.getElementById('recommendationsSection').classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/plants/recommendations/?wilaya=${encodeURIComponent(selectedWilaya)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Update climate info
+                    updateClimateDisplay(data);
+                    
+                    // Store and display recommendations
+                    allRecommendations = data.recommended_plants;
+                    displayPlants();
+
+                    // Show sections
+                    document.getElementById('climateSection').classList.remove('hidden');
+                    document.getElementById('recommendationsSection').classList.remove('hidden');
+                    
+                    // Scroll to results
+                    document.getElementById('climateSection').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error loading recommendations: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load recommendations. Please try again.');
+            } finally {
+                document.getElementById('loadingSection').classList.add('hidden');
+            }
+        }
+
+        function updateClimateDisplay(data) {
+            const env = data.environmental_summary;
+            const climate = data.climate_type;
+
+            document.getElementById('climateTemp').textContent = env.air_temperature.toFixed(1) + '°C';
+            document.getElementById('climateHumidity').textContent = env.humidity + '%';
+            document.getElementById('climateSoil').textContent = env.soil_moisture.toFixed(3);
+            document.getElementById('climateIcon').textContent = climate.icon;
+            document.getElementById('climateType').textContent = climate.type;
+            document.getElementById('climateDesc').textContent = climate.description;
+            document.getElementById('totalCompatible').textContent = data.total_compatible;
+        }
+
+        function displayPlants() {
+            let plants = [...allRecommendations];
+
+            // Apply filter
+            if (currentFilter !== 'all') {
+                plants = plants.filter(p => {
+                    if (currentFilter === 'excellent') return p.compatibility_score >= 85;
+                    if (currentFilter === 'good') return p.compatibility_score >= 70 && p.compatibility_score < 85;
+                    if (currentFilter === 'moderate') return p.compatibility_score >= 50 && p.compatibility_score < 70;
+                    return true;
+                });
+            }
+
+            // Apply sort
+            if (currentSort === 'score') {
+                plants.sort((a, b) => b.compatibility_score - a.compatibility_score);
+            } else if (currentSort === 'name') {
+                plants.sort((a, b) => a.genus.localeCompare(b.genus));
+            }
+
+            const grid = document.getElementById('plantsGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (plants.length === 0) {
+                grid.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            noResults.classList.add('hidden');
+
+            grid.innerHTML = plants.map(plant => {
+                const scoreColor = plant.compatibility_score >= 85 ? 'green' : 
+                                 plant.compatibility_score >= 70 ? 'blue' : 
+                                 plant.compatibility_score >= 50 ? 'yellow' : 'red';
+
+                return `
+                    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-${scoreColor}-200">
+                        ${plant.image_url ? 
+                            `<img src="${plant.image_url}" class="w-full h-48 object-cover">` :
+                            `<div class="w-full h-48 bg-gradient-to-br from-${scoreColor}-100 to-${scoreColor}-200 flex items-center justify-center"><span class="text-6xl">🌿</span></div>`
+                        }
+                        <div class="p-6">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-1">${plant.genus}</h3>
+                                    <p class="text-sm text-gray-600">${plant.family}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-3xl font-bold text-${scoreColor}-600">${plant.compatibility_score}</div>
+                                    <div class="text-xs text-gray-500">Score</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                ${plant.reasons.map(reason => `
+                                    <div class="flex items-start gap-2 text-sm">
+                                        <span class="text-${scoreColor}-500 mt-0.5">•</span>
+                                        <span class="text-gray-700">${reason}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="flex gap-2">
+                                <a href="/plants/comparison/?plants=${plant.id}" 
+                                   class="flex-1 text-center px-4 py-2 bg-${scoreColor}-600 text-white rounded-lg hover:bg-${scoreColor}-700 font-semibold text-sm">
+                                    Compare
+                                </a>
+                                <button onclick="showPlantDetails(${plant.id})" 
+                                        class="flex-1 px-4 py-2 border-2 border-${scoreColor}-600 text-${scoreColor}-600 rounded-lg hover:bg-${scoreColor}-50 font-semibold text-sm">
+                                    Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterByScore(filter) {
+            currentFilter = filter;
+            displayPlants();
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-green-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300');
+            });
+            event.target.classList.add('active', 'bg-green-600', 'text-white');
+            event.target.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-300');
+        }
+
+        function sortPlants(sort) {
+            currentSort = sort;
+            displayPlants();
+            
+            // Update button styles
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-green-600', 'text-white');
+            });
+            event.target.classList.add('active', 'bg-green-600', 'text-white');
+        }
+
+        function showPlantDetails(plantId) {
+            window.location.href = `/plants/${plantId}/`;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+    <style>
+        .filter-btn.active {
+            background-color: #16a34a !important;
+            color: white !important;
+            border-color: #16a34a !important;
+        }
+        
+        .filter-btn:not(.active) {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .sort-btn.active {
+            background-color: #16a34a;
+            color: white;
+        }
+    </style>
+
+{% endblock content %}
